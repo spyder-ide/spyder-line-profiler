@@ -29,10 +29,11 @@ import sys
 import os
 import os.path as osp
 import time
+import cPickle
+import linecache
 
 # Local imports
-from spyderlib.utils.qthelpers import (create_toolbutton, get_item_user_text,
-                                       set_item_user_text, get_icon)
+from spyderlib.utils.qthelpers import create_toolbutton, get_icon
 from spyderlib.utils.programs import shell_split
 from spyderlib.baseconfig import get_conf_path, get_translation
 from spyderlib.widgets.texteditor import TextEditor
@@ -40,6 +41,14 @@ from spyderlib.widgets.comboboxes import PythonModulesComboBox
 from spyderlib.widgets.externalshell import baseshell
 from spyderlib.py3compat import to_text_string, getcwd
 _ = get_translation("p_lineprofiler", dirname="spyderplugins")
+
+
+COL_LINE = 0
+COL_PERCENT = 1
+COL_TIME = 2
+COL_PERHIT = 3
+COL_HITS = 4
+COL_POS = 5
 
 
 def is_lineprofiler_installed():
@@ -92,24 +101,25 @@ class LineProfilerWidget(QWidget):
 
         self.datelabel = QLabel()
 
-        self.log_button = create_toolbutton(self, icon=get_icon('log.png'),
-                                            text=_("Output"),
-                                            text_beside_icon=True,
-                                            tip=_("Show program's output"),
-                                            triggered=self.show_log)
+        self.log_button = create_toolbutton(
+            self, icon=get_icon('log.png'),
+            text=_("Output"),
+            text_beside_icon=True,
+            tip=_("Show program's output"),
+            triggered=self.show_log)
 
         self.datatree = LineProfilerDataTree(self)
 
         self.collapse_button = create_toolbutton(
             self,
             icon=get_icon('collapse.png'),
-            triggered=lambda dD=-1: self.datatree.change_view(dD),
-            tip=_('Collapse one level up'))
+            triggered=lambda dD=-1: self.datatree.collapseAll(),
+            tip=_('Collapse all'))
         self.expand_button = create_toolbutton(
             self,
             icon=get_icon('expand.png'),
-            triggered=lambda dD=1: self.datatree.change_view(dD),
-            tip=_('Expand one level down'))
+            triggered=lambda dD=1: self.datatree.expandAll(),
+            tip=_('Expand all'))
 
         hlayout1 = QHBoxLayout()
         hlayout1.addWidget(self.filecombo)
@@ -224,20 +234,15 @@ class LineProfilerWidget(QWidget):
         self.output = ''
         self.error_output = ''
 
-        p_args = ['-m', 'cProfile', '-o', self.DATAPATH]
         if os.name == 'nt':
             # On Windows, one has to replace backslashes by slashes to avoid
             # confusion with escape characters (otherwise, for example, '\t'
             # will be interpreted as a tabulation):
-            p_args.append(osp.normpath(filename).replace(os.sep, '/'))
-        else:
-            p_args.append(filename)
+            filename = osp.normpath(filename).replace(os.sep, '/')
+        executable = "kernprof.py"
+        p_args = ['-lvb', '-o', self.DATAPATH, filename]
         if args:
             p_args.extend(shell_split(args))
-        executable = sys.executable
-        if executable.endswith("spyder.exe"):
-            # py2exe distribution
-            executable = "python.exe"
         self.process.start(executable, p_args)
 
         running = self.process.waitForStarted()
@@ -325,213 +330,162 @@ class LineProfilerDataTree(QTreeWidget):
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
-        self.header_list = [_('Function/Module'), _('Total Time'),
-                            _('Local Time'), _('Calls'), _('File:line')]
-        self.icon_list = {
-            'module':      'python.png',
-            'function':    'function.png',
-            'builtin':     'python_t.png',
-            'constructor': 'class.png'}
-        self.profdata = None   # To be filled by self.load_data()
+        self.header_list = [_('Code'), _('% Time'), _('Time (ms)'),
+                            _('Per hit (ms)'), _('Hits'), _('File:line')]
         self.stats = None      # To be filled by self.load_data()
-        self.item_depth = None
-        self.item_list = None
-        self.items_to_be_shown = None
-        self.current_view_depth = None
+        self.header().setDefaultAlignment(Qt.AlignCenter)
         self.setColumnCount(len(self.header_list))
         self.setHeaderLabels(self.header_list)
-        self.initialize_view()
+        self.clear()
         self.connect(self, SIGNAL('itemActivated(QTreeWidgetItem*,int)'),
                      self.item_activated)
-        self.connect(self, SIGNAL('itemExpanded(QTreeWidgetItem*)'),
-                     self.item_expanded)
-
-    def set_item_data(self, item, filename, line_number):
-        """Set tree item user data: filename (string) and line_number (int)"""
-        set_item_user_text(item, '%s%s%d' % (filename, self.SEP, line_number))
 
     def get_item_data(self, item):
         """Get tree item user data: (filename, line_number)"""
-        filename, line_number_str = get_item_user_text(item).split(self.SEP)
+        filename, line_number_str = item.text(COL_POS).rsplit(":", 1)
         return filename, int(line_number_str)
 
-    def initialize_view(self):
-        """Clean the tree and view parameters"""
-        self.clear()
-        self.item_depth = 0   # To be use for collapsing/expanding one level
-        self.item_list = []  # To be use for collapsing/expanding one level
-        self.items_to_be_shown = {}
-        self.current_view_depth = 0
-
     def load_data(self, profdatafile):
-        """Load line profiler data saved by kerprof.py module"""
-        import pstats
-        self.profdata = pstats.Stats(profdatafile)
-        self.profdata.calc_callees()
-        self.stats = self.profdata.stats
+        """Load line profiler data saved by kernprof.py module"""
+        # lstats has the following layout :
+        # lstats.timings =
+        #     {(filename1, line_no1, function_name1):
+        #         [(line_no1, hits1, total_time1),
+        #          (line_no2, hits2, total_time2)],
+        #      (filename2, line_no2, function_name2):
+        #         [(line_no1, hits1, total_time1),
+        #          (line_no2, hits2, total_time2),
+        #          (line_no3, hits3, total_time3)]}
+        # lstats.unit = time_factor
+        with open(profdatafile, 'rb') as fid:
+            lstats = cPickle.load(fid)
 
-    def find_root(self):
-        """Find a function without a caller"""
-        for func, (cc, nc, tt, ct, callers) in list(self.stats.items()):
-            if not callers and self.find_callees(func):
-                return func
+        # First pass to group by filename
+        self.stats = dict()
+        for func_info, stats in lstats.timings.iteritems():
+            # func_info is a tuple containing (filename, line, function anme)
+            linecache.clearcache()
+            filename, start_line, func_name = func_info
+            start_line -= 1  # include the @profile decorator
+            end_line = stats[-1][0]
 
-    def find_root_skip_lineprofilerfuns(self):
-        """Define root ignoring line profiler-specific functions."""
-        # FIXME: this is specific to module 'profile' and has to be
-        #        changed for cProfile
-        #return ('', 0, 'execfile')     # For 'profile' module
-        return ('~', 0, '<execfile>')     # For 'cProfile' module
+            if filename not in self.stats:
+                self.stats[filename] = {func_info[1:]: stats}
+            else:
+                self.stats[filename][func_info[1:]] = stats
 
-    def find_callees(self, parent):
-        """Find all functions called by (parent) function."""
-        # FIXME: This implementation is very inneficient, because it
-        #        traverses all the data to find children nodes (callees)
-        return self.profdata.all_callees[parent]
+        # Second pass to load code blocks
+        for filename, filestats in self.stats.iteritems():
+            file_total_time = 0.0
+            for func_info, stats in list(filestats.items()):
+                start_line, func_name = func_info
+                end_line = stats[-1][0]
+
+                func_total_time = 0.0
+                func_stats = []
+                next_stat_line = 0
+                for line_number in xrange(start_line, end_line):
+                    code_line = (linecache.getline(filename, line_number)
+                                 .rstrip('\n'))
+                    if line_number != stats[next_stat_line][0]:
+                        hits, line_total_time, time_per_hit = None, None, None
+                    else:
+                        hits, line_total_time = stats[next_stat_line][1:]
+                        line_total_time *= lstats.unit
+                        time_per_hit = line_total_time / hits
+                        func_total_time += line_total_time
+                        next_stat_line += 1
+                    func_stats.append(
+                        [line_number, code_line, line_total_time, time_per_hit,
+                         hits])
+
+                # Compute percent time
+                for line in func_stats:
+                    line_total_time = line[2]
+                    if line_total_time is None:
+                        line.append(None)
+                    else:
+                        line.append(line_total_time / func_total_time)
+                file_total_time += func_total_time
+
+                # Update infos
+                filestats[func_info] = [func_total_time] + func_stats
+            filestats["file_total_time"] = file_total_time
 
     def show_tree(self):
         """Populate the tree with line profiler data and display it."""
-        self.initialize_view()  # Clear before re-populating
+        self.clear()  # Clear before re-populating
         self.setItemsExpandable(True)
         self.setSortingEnabled(False)
-        rootkey = self.find_root()  # This root contains line profiler overhead
-#        rootkey = self.find_root_skip_lineprofilerfuns()
-        if rootkey:
-            self.populate_tree(self, self.find_callees(rootkey))
-            self.resizeColumnToContents(0)
-            self.setSortingEnabled(True)
-            self.sortItems(1, Qt.DescendingOrder) # FIXME: hardcoded index
-            self.change_view(1)
+        self.populate_tree()
+        self.expandAll()
+        for col in range(self.columnCount()-1):
+            self.resizeColumnToContents(col)
+        self.setSortingEnabled(True)
+        self.sortItems(COL_POS, Qt.AscendingOrder)
 
-    def function_info(self, functionKey):
-        """Returns processed information about the function's name and file."""
-        node_type = 'function'
-        filename, line_number, function_name = functionKey
-        if function_name == '<module>':
-            modulePath, moduleName = osp.split(filename)
-            node_type = 'module'
-            if moduleName == '__init__.py':
-                modulePath, moduleName = osp.split(modulePath)
-            function_name = '<' + moduleName + '>'
-        if not filename or filename == '~':
-            file_and_line = '(built-in)'
-            node_type = 'builtin'
-        else:
-            if function_name == '__init__':
-                node_type = 'constructor'
-            file_and_line = '%s : %d' % (filename, line_number)
-        return filename, line_number, function_name, file_and_line, node_type
+    def fill_item(self, item, filename, line_no, code, time, percent, perhit,
+                  hits):
+            item.setData(COL_POS, Qt.DisplayRole,
+                         '%s:%s' % (filename, line_no))
 
-    def populate_tree(self, parentItem, children_list):
-        """Recursive method to create each item (and associated data) in the
-        tree.
-        """
-        for child_key in children_list:
-            self.item_depth += 1
-            (filename, line_number, function_name, file_and_line, node_type
-             ) = self.function_info(child_key)
-            (primcalls, total_calls, loc_time, cum_time, callers
-             ) = self.stats[child_key]
-            child_item = QTreeWidgetItem(parentItem)
-            self.item_list.append(child_item)
-            self.set_item_data(child_item, filename, line_number)
+            item.setData(COL_LINE, Qt.DisplayRole, code)
 
-            # FIXME: indexes to data should be defined by a dictionary on init
-            child_item.setToolTip(0, 'Function or module name')
-            child_item.setData(0, Qt.DisplayRole, function_name)
-            child_item.setIcon(0, get_icon(self.icon_list[node_type]))
+            if percent is None:
+                percent = ''
+            elif isinstance(percent, (int, long, float)):
+                percent = '%.1f' % (100 * percent)
+            item.setData(COL_PERCENT, Qt.DisplayRole, percent)
+            item.setTextAlignment(COL_PERCENT, Qt.AlignCenter)
 
-            child_item.setToolTip(1, _('Time in function '
-                                       '(including sub-functions)'))
-            #child_item.setData(1, Qt.DisplayRole, cum_time)
-            child_item.setData(1, Qt.DisplayRole, '%.3f' % cum_time)
-            child_item.setTextAlignment(1, Qt.AlignCenter)
+            if time is None:
+                time = ''
+            elif isinstance(time, (int, long, float)):
+                time = '%.3f' % (time * 1e3)
+            item.setData(COL_TIME, Qt.DisplayRole, time)
+            item.setTextAlignment(COL_TIME, Qt.AlignCenter)
 
-            child_item.setToolTip(2, _('Local time in function '
-                                       '(not in sub-functions)'))
-            #child_item.setData(2, Qt.DisplayRole, loc_time)
-            child_item.setData(2, Qt.DisplayRole, '%.3f' % loc_time)
-            child_item.setTextAlignment(2, Qt.AlignCenter)
+            if perhit is None:
+                perhit = ''
+            elif isinstance(perhit, (int, long, float)):
+                perhit = '%.3f' % (perhit * 1e3)
+            item.setData(COL_PERHIT, Qt.DisplayRole, perhit)
+            item.setTextAlignment(COL_PERHIT, Qt.AlignCenter)
 
-            child_item.setToolTip(3, _('Total number of calls '
-                                       '(including recursion)'))
-            child_item.setData(3, Qt.DisplayRole, total_calls)
-            child_item.setTextAlignment(3, Qt.AlignCenter)
+            if hits is None:
+                hits = ''
+            elif isinstance(hits, (int, long, float)):
+                hits = '%d' % hits
+            item.setData(COL_HITS, Qt.DisplayRole, hits)
+            item.setTextAlignment(COL_HITS, Qt.AlignCenter)
 
-            child_item.setToolTip(4, _('File:line '
-                                       'where function is defined'))
-            child_item.setData(4, Qt.DisplayRole, file_and_line)
-            #child_item.setExpanded(True)
-            if self.is_recursive(child_item):
-                child_item.setData(4, Qt.DisplayRole, '(%s)' % _('recursion'))
-                child_item.setDisabled(True)
-            else:
-                callees = self.find_callees(child_key)
-                if self.item_depth < 3:
-                    self.populate_tree(child_item, callees)
-                elif callees:
-                    child_item.setChildIndicatorPolicy(
-                        child_item.ShowIndicator)
-                    self.items_to_be_shown[id(child_item)] = callees
-            self.item_depth -= 1
+    def populate_tree(self):
+        """Create each item (and associated data) in the tree"""
+        for filename, filestats in self.stats.iteritems():
+            file_item = QTreeWidgetItem(self)
+            self.fill_item(file_item, filename, '', osp.basename(filename),
+                           filestats["file_total_time"], '', '', '')
+
+            for func_info, func_stats in filestats.items():
+                if func_info == "file_total_time":
+                    continue
+
+                func_item = QTreeWidgetItem(file_item)
+                self.fill_item(func_item, filename, func_info[0],
+                               _('%d: function %s()') % func_info,
+                               func_stats[0],
+                               '', '', '')
+
+                for line_info in func_stats[1:]:
+                    line_item = QTreeWidgetItem(func_item)
+                    self.fill_item(line_item, filename, line_info[0],
+                                   line_info[1], line_info[2], line_info[5],
+                                   line_info[3], line_info[4])
 
     def item_activated(self, item):
         filename, line_number = self.get_item_data(item)
         self.parent().emit(SIGNAL("edit_goto(QString,int,QString)"),
                            filename, line_number, '')
-
-    def item_expanded(self, item):
-        if item.childCount() == 0 and id(item) in self.items_to_be_shown:
-            callees = self.items_to_be_shown[id(item)]
-            self.populate_tree(item, callees)
-
-    def is_recursive(self, child_item):
-        """Returns True is a function is a descendant of itself."""
-        ancestor = child_item.parent()
-        # FIXME: indexes to data should be defined by a dictionary on init
-        while ancestor:
-            if (child_item.data(0, Qt.DisplayRole
-                                ) == ancestor.data(0, Qt.DisplayRole) and
-                child_item.data(4, Qt.DisplayRole
-                                ) == ancestor.data(4, Qt.DisplayRole)):
-                return True
-            else:
-                ancestor = ancestor.parent()
-        return False
-
-    def get_top_level_items(self):
-        """Iterate over top level items"""
-        return [self.topLevelItem(_i)
-                for _i in range(self.topLevelItemCount())]
-
-    def get_items(self, maxlevel):
-        """Return items (excluding top level items)"""
-        itemlist = []
-
-        def add_to_itemlist(item, maxlevel, level=1):
-            level += 1
-            for index in range(item.childCount()):
-                citem = item.child(index)
-                itemlist.append(citem)
-                if level <= maxlevel:
-                    add_to_itemlist(citem, maxlevel, level)
-
-        for tlitem in self.get_top_level_items():
-            itemlist.append(tlitem)
-            if maxlevel > 1:
-                add_to_itemlist(tlitem, maxlevel=maxlevel)
-        return itemlist
-
-    def change_view(self, change_in_depth):
-        """Change the view depth by expand or collapsing all same-level
-        nodes
-        """
-        self.current_view_depth += change_in_depth
-        if self.current_view_depth < 1:
-            self.current_view_depth = 1
-        self.collapseAll()
-        for item in self.get_items(maxlevel=self.current_view_depth):
-            item.setExpanded(True)
 
 
 def test():
@@ -541,9 +495,8 @@ def test():
     widget = LineProfilerWidget(None)
     widget.resize(800, 600)
     widget.show()
-    #widget.analyze(__file__)
-    widget.analyze(osp.join(osp.dirname(__file__), os.pardir, os.pardir,
-                            'rope_profiling', 'test.py'))
+    widget.analyze(osp.join(osp.dirname(__file__), os.pardir,
+                            'profiling_test_script.py'))
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
