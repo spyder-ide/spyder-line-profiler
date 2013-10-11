@@ -509,7 +509,6 @@ class LineProfilerDataTree(QTreeWidget):
         line_no = int(line_no)
         self.parent().emit(SIGNAL("edit_goto(QString,int,QString)"),
                            filename, line_no, '')
-        print(filename, line_no)
 
 
 def test():
