@@ -390,7 +390,6 @@ class LineProfilerDataTree(QTreeWidget):
             func_stats = []
             func_total_time = 0.0
             next_stat_line = 0
-            func_max_time = 0.0
             for line_no, code_line in enumerate(block_lines):
                 line_no += start_line_no
                 code_line = code_line.rstrip('\n').decode('utf8')
@@ -405,7 +404,6 @@ class LineProfilerDataTree(QTreeWidget):
                     time_per_hit = line_total_time / hits
                     func_total_time += line_total_time
                     next_stat_line += 1
-                    func_max_time = max(func_max_time, line_total_time)
                 func_stats.append(
                     [line_no, code_line, line_total_time, time_per_hit,
                      hits])
@@ -419,8 +417,7 @@ class LineProfilerDataTree(QTreeWidget):
                     line.append(line_total_time / func_total_time)
 
             # Fill dict
-            self.stats[func_info] = [func_stats, func_total_time,
-                                     func_max_time]
+            self.stats[func_info] = [func_stats, func_total_time]
 
     def fill_item(self, item, filename, line_no, code, time, percent, perhit,
                   hits):
@@ -470,7 +467,7 @@ class LineProfilerDataTree(QTreeWidget):
         for func_info, func_data in self.stats.iteritems():
             # Function name and position
             filename, start_line_no, func_name = func_info
-            func_stats, func_total_time, func_max_time = func_data
+            func_stats, func_total_time = func_data
             func_item = QTreeWidgetItem(self)
             func_item.setData(
                 0, Qt.DisplayRole,
@@ -497,7 +494,7 @@ class LineProfilerDataTree(QTreeWidget):
 
                 # Color background
                 if line_total_time is not None:
-                    alpha = line_total_time / func_max_time
+                    alpha = percent
                     color = QBrush(QColor.fromRgbF(1, 0, 0, alpha))
                     for col in range(self.columnCount()):
                         line_item.setBackground(col, color)
