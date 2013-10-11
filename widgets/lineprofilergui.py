@@ -53,7 +53,7 @@ COL_POS = 5
 
 def is_lineprofiler_installed():
     from spyderlib.utils.programs import is_module_installed
-    return is_module_installed('cProfile') and is_module_installed('pstats')
+    return is_module_installed('line_profiler')
 
 
 class LineProfilerWidget(QWidget):
