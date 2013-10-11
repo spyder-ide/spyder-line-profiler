@@ -367,6 +367,7 @@ class LineProfilerDataTree(QTreeWidget):
             # func_info is a tuple containing (filename, line, function anme)
             linecache.clearcache()
             filename, start_line, func_name = func_info
+            filename = filename.decode('utf8')
             start_line -= 1  # include the @profile decorator
             end_line = stats[-1][0]
 
@@ -388,7 +389,7 @@ class LineProfilerDataTree(QTreeWidget):
                 next_stat_line = 0
                 for line_number in xrange(start_line, end_line):
                     code_line = (linecache.getline(filename, line_number)
-                                 .rstrip('\n'))
+                                 .rstrip('\n').decode('utf8'))
                     if line_number != stats[next_stat_line][0]:
                         hits, line_total_time, time_per_hit = None, None, None
                     else:
