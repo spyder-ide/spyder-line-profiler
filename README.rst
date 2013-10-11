@@ -6,6 +6,8 @@ Description
 
 This is a plugin to run the python `line profiler <http://pythonhosted.org/line_profiler/>`_ from within the `spyder <https://code.google.com/p/spyderlib/>`_ editor.
 
+The code is an adaptation of the profiler plugin integrated in `spyder <https://code.google.com/p/spyderlib/>`_.
+
 Install instructions
 --------------------
 
