@@ -20,7 +20,7 @@ from __future__ import with_statement
 
 from spyderlib.qt.QtGui import (QHBoxLayout, QWidget, QMessageBox, QVBoxLayout,
                                 QLabel, QTreeWidget, QTreeWidgetItem,
-                                QApplication, QBrush, QColor)
+                                QApplication, QBrush, QColor, QFont)
 from spyderlib.qt.QtCore import SIGNAL, QProcess, QByteArray, Qt, QTextCodec
 locale_codec = QTextCodec.codecForLocale()
 from spyderlib.qt.compat import getopenfilename
@@ -465,6 +465,12 @@ class LineProfilerDataTree(QTreeWidget):
 
     def populate_tree(self):
         """Create each item (and associated data) in the tree"""
+        try:
+            monospace_font = self.window().editor.get_plugin_font()
+        except AttributeError:  # If run standalone for testing
+            monospace_font = QFont("Courier New")
+            monospace_font.setPointSize(10)
+
         for filename, filestats in self.stats.iteritems():
             file_item = QTreeWidgetItem(self)
             self.fill_item(file_item, filename, '', osp.basename(filename),
@@ -488,11 +494,15 @@ class LineProfilerDataTree(QTreeWidget):
                         line_item, filename, line_number, code_line,
                         line_total_time, percent, time_per_hit, hits)
 
+                    # Color background
                     if line_total_time is not None:
                         alpha = line_total_time / self.max_time
                         color = QBrush(QColor.fromRgbF(1, 0, 0, alpha))
                         for col in range(self.columnCount()):
                             line_item.setBackground(col, color)
+
+                    # Monospace font for code
+                    line_item.setFont(COL_LINE, monospace_font)
 
     def item_activated(self, item):
         filename, line_number = self.get_item_data(item)
