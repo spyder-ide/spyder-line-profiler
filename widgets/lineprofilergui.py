@@ -31,6 +31,7 @@ import os.path as osp
 import time
 import cPickle
 import linecache
+import inspect
 
 # Local imports
 from spyderlib.utils.qthelpers import create_toolbutton, get_icon
@@ -43,12 +44,13 @@ from spyderlib.py3compat import to_text_string, getcwd
 _ = get_translation("p_lineprofiler", dirname="spyderplugins")
 
 
-COL_LINE = 0
-COL_PERCENT = 1
+COL_NO = 0
+COL_LINE = 5
+COL_PERCENT = 4
 COL_TIME = 2
 COL_PERHIT = 3
-COL_HITS = 4
-COL_POS = 5
+COL_HITS = 1
+COL_POS = 6
 
 
 def is_lineprofiler_installed():
@@ -330,21 +332,23 @@ class LineProfilerDataTree(QTreeWidget):
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
-        self.header_list = [_('Code'), _('% Time'), _('Time (ms)'),
-                            _('Per hit (ms)'), _('Hits'), _('File:line')]
+        self.header_list = [
+            _('Line #'), _('Hits'), _('Time (ms)'), _('Per hit (ms)'),
+            _('% Time'), _('Line contents'), _('File:line')]
         self.stats = None      # To be filled by self.load_data()
         self.max_time = 0      # To be filled by self.load_data()
         self.header().setDefaultAlignment(Qt.AlignCenter)
         self.setColumnCount(len(self.header_list))
         self.setHeaderLabels(self.header_list)
+        self.setColumnHidden(self.columnCount()-1, True)
         self.clear()
         self.connect(self, SIGNAL('itemActivated(QTreeWidgetItem*,int)'),
                      self.item_activated)
 
     def get_item_data(self, item):
-        """Get tree item user data: (filename, line_number)"""
-        filename, line_number_str = str(item.text(COL_POS)).rsplit(":", 1)
-        return filename, int(line_number_str)
+        """Get tree item user data: (filename, line_no)"""
+        filename, line_no_str = str(item.text(COL_POS)).rsplit(":", 1)
+        return filename, int(line_no_str)
 
     def load_data(self, profdatafile):
         """Load line profiler data saved by kernprof.py module"""
@@ -363,58 +367,52 @@ class LineProfilerDataTree(QTreeWidget):
 
         # First pass to group by filename
         self.stats = dict()
+        linecache.checkcache()
         for func_info, stats in lstats.timings.iteritems():
             # func_info is a tuple containing (filename, line, function anme)
-            linecache.clearcache()
-            filename, start_line, func_name = func_info
+            filename, start_line_no, func_name = func_info
             filename = filename.decode('utf8')
-            start_line -= 1  # include the @profile decorator
-            end_line = stats[-1][0]
 
-            if filename not in self.stats:
-                self.stats[filename] = {func_info[1:]: stats}
-            else:
-                self.stats[filename][func_info[1:]] = stats
+            # Read code
+            start_line_no -= 1  # include the @profile decorator
+            all_lines = linecache.getlines(filename)
+            block_lines = inspect.getblock(all_lines[start_line_no-1:])
 
-        # Second pass to load code blocks
-        self.max_time = 0
-        for filename, filestats in self.stats.iteritems():
-            file_total_time = 0.0
-            for func_info, stats in list(filestats.items()):
-                start_line, func_name = func_info
-                end_line = stats[-1][0]
+            # Loop on each line of code
+            func_stats = []
+            func_total_time = 0.0
+            next_stat_line = 0
+            func_max_time = 0.0
+            for line_no, code_line in enumerate(block_lines):
+                line_no += start_line_no
+                code_line = code_line.rstrip('\n').decode('utf8')
+                if (next_stat_line < len(stats)
+                        and line_no != stats[next_stat_line][0]):
+                    # Line didn't run
+                    hits, line_total_time, time_per_hit = None, None, None
+                else:
+                    # Compute line times
+                    hits, line_total_time = stats[next_stat_line][1:]
+                    line_total_time *= lstats.unit
+                    time_per_hit = line_total_time / hits
+                    func_total_time += line_total_time
+                    next_stat_line += 1
+                    func_max_time = max(func_max_time, line_total_time)
+                func_stats.append(
+                    [line_no, code_line, line_total_time, time_per_hit,
+                     hits])
 
-                func_total_time = 0.0
-                func_stats = []
-                next_stat_line = 0
-                for line_number in xrange(start_line, end_line):
-                    code_line = (linecache.getline(filename, line_number)
-                                 .rstrip('\n').decode('utf8'))
-                    if line_number != stats[next_stat_line][0]:
-                        hits, line_total_time, time_per_hit = None, None, None
-                    else:
-                        hits, line_total_time = stats[next_stat_line][1:]
-                        line_total_time *= lstats.unit
-                        time_per_hit = line_total_time / hits
-                        func_total_time += line_total_time
-                        next_stat_line += 1
-                        self.max_time = max(self.max_time, line_total_time)
-                    func_stats.append(
-                        [line_number, code_line, line_total_time, time_per_hit,
-                         hits])
+            # Compute percent time
+            for line in func_stats:
+                line_total_time = line[2]
+                if line_total_time is None:
+                    line.append(None)
+                else:
+                    line.append(line_total_time / func_total_time)
 
-                # Compute percent time
-                for line in func_stats:
-                    line_total_time = line[2]
-                    if line_total_time is None:
-                        line.append(None)
-                    else:
-                        line.append(line_total_time / func_total_time)
-                file_total_time += func_total_time
-
-                # Update infos
-                filestats[func_info] = [func_total_time] + func_stats
-            filestats["file_total_time"] = file_total_time
+            # Fill dict
+            self.stats[func_info] = [func_stats, func_total_time,
+                                     func_max_time]
 
     def show_tree(self):
         """Populate the tree with line profiler data and display it."""
@@ -425,6 +423,7 @@ class LineProfilerDataTree(QTreeWidget):
         self.expandAll()
         for col in range(self.columnCount()-1):
             self.resizeColumnToContents(col)
+        self.collapseAll()
         self.setSortingEnabled(True)
         self.sortItems(COL_POS, Qt.AscendingOrder)
 
@@ -432,6 +431,8 @@ class LineProfilerDataTree(QTreeWidget):
                   hits):
             item.setData(COL_POS, Qt.DisplayRole,
                          '%s:%s' % (osp.normpath(filename), line_no))
+
+            item.setData(COL_NO, Qt.DisplayRole, line_no)
 
             item.setData(COL_LINE, Qt.DisplayRole, code)
 
@@ -471,43 +472,49 @@ class LineProfilerDataTree(QTreeWidget):
             monospace_font = QFont("Courier New")
             monospace_font.setPointSize(10)
 
-        for filename, filestats in self.stats.iteritems():
-            file_item = QTreeWidgetItem(self)
-            self.fill_item(file_item, filename, '', osp.basename(filename),
-                           filestats["file_total_time"], '', '', '')
+        for func_info, func_data in self.stats.iteritems():
+            # Function name and position
+            filename, start_line_no, func_name = func_info
+            func_stats, func_total_time, func_max_time = func_data
+            func_item = QTreeWidgetItem(self)
+            func_item.setData(
+                0, Qt.DisplayRole,
+                _('{func_name} ({time_ms:.3f}ms) in file "{filename}", '
+                  'line {line_no}').format(
+                    filename=func_info[0],
+                    line_no=func_info[1],
+                    func_name=func_info[2],
+                    time_ms=func_total_time * 1e3))
+            # For sorting by time
+            func_item.setData(COL_TIME, Qt.DisplayRole, func_total_time * 1e3)
+            func_item.setData(COL_PERCENT, Qt.DisplayRole,
+                              func_total_time * 1e3)
+            func_item.setFirstColumnSpanned(True)
 
-            for func_info, func_stats in filestats.items():
-                if func_info == "file_total_time":
-                    continue
+            # Lines of code
+            for line_info in func_stats:
+                line_item = QTreeWidgetItem(func_item)
+                (line_no, code_line, line_total_time, time_per_hit,
+                 hits, percent) = line_info
+                self.fill_item(
+                    line_item, filename, line_no, code_line,
+                    line_total_time, percent, time_per_hit, hits)
 
-                func_item = QTreeWidgetItem(file_item)
-                self.fill_item(func_item, filename, func_info[0],
-                               _('%d: function %s()') % func_info,
-                               func_stats[0],
-                               '', '', '')
+                # Color background
+                if line_total_time is not None:
+                    alpha = line_total_time / func_max_time
+                    color = QBrush(QColor.fromRgbF(1, 0, 0, alpha))
+                    for col in range(self.columnCount()):
+                        line_item.setBackground(col, color)
 
-                for line_info in func_stats[1:]:
-                    line_item = QTreeWidgetItem(func_item)
-                    (line_number, code_line, line_total_time, time_per_hit,
-                     hits, percent) = line_info
-                    self.fill_item(
-                        line_item, filename, line_number, code_line,
-                        line_total_time, percent, time_per_hit, hits)
-
-                    # Color background
-                    if line_total_time is not None:
-                        alpha = line_total_time / self.max_time
-                        color = QBrush(QColor.fromRgbF(1, 0, 0, alpha))
-                        for col in range(self.columnCount()):
-                            line_item.setBackground(col, color)
-
-                    # Monospace font for code
-                    line_item.setFont(COL_LINE, monospace_font)
+                # Monospace font for code
+                line_item.setFont(COL_LINE, monospace_font)
 
     def item_activated(self, item):
-        filename, line_number = self.get_item_data(item)
+        filename, line_no = self.get_item_data(item)
         self.parent().emit(SIGNAL("edit_goto(QString,int,QString)"),
-                           filename, line_number, '')
+                           filename, line_no, '')
+        print(filename, line_no)
 
 
 def test():
