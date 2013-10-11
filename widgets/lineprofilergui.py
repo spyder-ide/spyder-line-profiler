@@ -342,7 +342,7 @@ class LineProfilerDataTree(QTreeWidget):
 
     def get_item_data(self, item):
         """Get tree item user data: (filename, line_number)"""
-        filename, line_number_str = item.text(COL_POS).rsplit(":", 1)
+        filename, line_number_str = str(item.text(COL_POS)).rsplit(":", 1)
         return filename, int(line_number_str)
 
     def load_data(self, profdatafile):
