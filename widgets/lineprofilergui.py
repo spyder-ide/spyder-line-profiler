@@ -496,7 +496,7 @@ def test():
     widget.resize(800, 600)
     widget.show()
     widget.analyze(osp.join(osp.dirname(__file__), os.pardir,
-                            'profiling_test_script.py'))
+                            'tests/profiling_test_script.py'))
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
