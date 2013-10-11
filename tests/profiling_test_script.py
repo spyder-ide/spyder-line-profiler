@@ -19,12 +19,23 @@ def fact(n):
     for i in xrange(2, n // 4):
         result *= i
     result = 1
+    # This is a comment
     for i in xrange(2, n // 16):
         result *= i
     result = 1
+
+    if False:
+        # This won't be run
+        raise RuntimeError("What are you doing here ???")
+
     for i in xrange(2, n + 1):
         result *= i
     return result
+    # This is after the end of the function.
+
+    if False:
+        # This won't be run
+        raise RuntimeError("It's getting bad.")
 
 
 @profile
