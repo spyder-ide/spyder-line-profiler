@@ -16,6 +16,12 @@ import subdir.profiling_test_script2 as script2
 @profile
 def fact(n):
     result = 1
+    for i in xrange(2, n // 4):
+        result *= i
+    result = 1
+    for i in xrange(2, n // 16):
+        result *= i
+    result = 1
     for i in xrange(2, n + 1):
         result *= i
     return result
