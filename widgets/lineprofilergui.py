@@ -345,10 +345,18 @@ class LineProfilerDataTree(QTreeWidget):
         self.connect(self, SIGNAL('itemActivated(QTreeWidgetItem*,int)'),
                      self.item_activated)
 
-    def get_item_data(self, item):
-        """Get tree item user data: (filename, line_no)"""
-        filename, line_no_str = str(item.text(COL_POS)).rsplit(":", 1)
-        return filename, int(line_no_str)
+    def show_tree(self):
+        """Populate the tree with line profiler data and display it."""
+        self.clear()  # Clear before re-populating
+        self.setItemsExpandable(True)
+        self.setSortingEnabled(False)
+        self.populate_tree()
+        self.expandAll()
+        for col in range(self.columnCount()-1):
+            self.resizeColumnToContents(col)
+        self.collapseAll()
+        self.setSortingEnabled(True)
+        self.sortItems(COL_POS, Qt.AscendingOrder)
 
     def load_data(self, profdatafile):
         """Load line profiler data saved by kernprof.py module"""
@@ -413,19 +421,6 @@ class LineProfilerDataTree(QTreeWidget):
             # Fill dict
             self.stats[func_info] = [func_stats, func_total_time,
                                      func_max_time]
-
-    def show_tree(self):
-        """Populate the tree with line profiler data and display it."""
-        self.clear()  # Clear before re-populating
-        self.setItemsExpandable(True)
-        self.setSortingEnabled(False)
-        self.populate_tree()
-        self.expandAll()
-        for col in range(self.columnCount()-1):
-            self.resizeColumnToContents(col)
-        self.collapseAll()
-        self.setSortingEnabled(True)
-        self.sortItems(COL_POS, Qt.AscendingOrder)
 
     def fill_item(self, item, filename, line_no, code, time, percent, perhit,
                   hits):
@@ -509,6 +504,11 @@ class LineProfilerDataTree(QTreeWidget):
 
                 # Monospace font for code
                 line_item.setFont(COL_LINE, monospace_font)
+
+    def get_item_data(self, item):
+        """Get tree item user data: (filename, line_no)"""
+        filename, line_no_str = str(item.text(COL_POS)).rsplit(":", 1)
+        return filename, int(line_no_str)
 
     def item_activated(self, item):
         filename, line_no = self.get_item_data(item)
