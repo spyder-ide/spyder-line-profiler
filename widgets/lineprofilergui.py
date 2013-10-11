@@ -427,7 +427,7 @@ class LineProfilerDataTree(QTreeWidget):
     def fill_item(self, item, filename, line_no, code, time, percent, perhit,
                   hits):
             item.setData(COL_POS, Qt.DisplayRole,
-                         '%s:%s' % (filename, line_no))
+                         '%s:%s' % (osp.normpath(filename), line_no))
 
             item.setData(COL_LINE, Qt.DisplayRole, code)
 
@@ -495,8 +495,8 @@ def test():
     widget = LineProfilerWidget(None)
     widget.resize(800, 600)
     widget.show()
-    widget.analyze(osp.join(osp.dirname(__file__), os.pardir,
-                            'tests/profiling_test_script.py'))
+    widget.analyze(osp.normpath(osp.join(osp.dirname(__file__), os.pardir,
+                                         'tests/profiling_test_script.py')))
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
