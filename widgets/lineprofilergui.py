@@ -32,6 +32,7 @@ import time
 import cPickle
 import linecache
 import inspect
+import hashlib
 
 # Local imports
 from spyderlib.utils.qthelpers import create_toolbutton, get_icon
@@ -72,6 +73,8 @@ class LineProfilerWidget(QWidget):
 
         self.output = None
         self.error_output = None
+
+        self.use_colors = True
 
         self._last_wdir = None
         self._last_args = None
@@ -161,7 +164,9 @@ class LineProfilerWidget(QWidget):
         else:
             pass  # self.show_data()
 
-    def analyze(self, filename, wdir=None, args=None, pythonpath=None):
+    def analyze(self, filename, wdir=None, args=None, pythonpath=None,
+                use_colors=True):
+        self.use_colors = use_colors
         if not is_lineprofiler_installed():
             return
         self.kill_if_running()
@@ -483,6 +488,15 @@ class LineProfilerDataTree(QTreeWidget):
                               func_total_time * 1e3)
             func_item.setFirstColumnSpanned(True)
 
+            if self.parent().use_colors:
+                # Choose deteministic unique color for the function
+                md5 = hashlib.md5(filename + func_name).hexdigest()
+                hue = int(int(md5[:3], 16) * 360 / 16**3)
+                func_color = QColor.fromHsv(hue, 200, 255)
+            else:
+                # Red color only
+                func_color = QColor.fromRgb(255, 0, 0)
+
             # Lines of code
             for line_info in func_stats:
                 line_item = QTreeWidgetItem(func_item)
@@ -495,7 +509,9 @@ class LineProfilerDataTree(QTreeWidget):
                 # Color background
                 if line_total_time is not None:
                     alpha = percent
-                    color = QBrush(QColor.fromRgbF(1, 0, 0, alpha))
+                    color = QColor(func_color)
+                    color.setAlphaF(alpha)  # Returns None
+                    color = QBrush(color)
                     for col in range(self.columnCount()):
                         line_item.setBackground(col, color)
 
@@ -522,7 +538,8 @@ def test():
     widget.resize(800, 600)
     widget.show()
     widget.analyze(osp.normpath(osp.join(osp.dirname(__file__), os.pardir,
-                                         'tests/profiling_test_script.py')))
+                                         'tests/profiling_test_script.py')),
+                   use_colors=True)
     sys.exit(app.exec_())
 
 if __name__ == '__main__':

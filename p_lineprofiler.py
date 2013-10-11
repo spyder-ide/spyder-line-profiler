@@ -23,6 +23,12 @@ from spyderplugins.widgets.lineprofilergui import (LineProfilerWidget,
 
 class LineProfilerConfigPage(PluginConfigPage):
     def setup_page(self):
+
+        settings_group = QGroupBox(_("Settings"))
+        use_color_box = self.create_checkbox(
+            _("Use deterministic colors to differentiate functions"),
+            'use_colors', default=True)
+
         results_group = QGroupBox(_("Results"))
         results_label1 = QLabel(_("Line profiler plugin results "
                                   "(the output of kernprof.py)\n"
@@ -37,12 +43,17 @@ class LineProfilerConfigPage(PluginConfigPage):
         results_label2.setTextInteractionFlags(Qt.TextSelectableByMouse)
         results_label2.setWordWrap(True)
 
+        settings_layout = QVBoxLayout()
+        settings_layout.addWidget(use_color_box)
+        settings_group.setLayout(settings_layout)
+
         results_layout = QVBoxLayout()
         results_layout.addWidget(results_label1)
         results_layout.addWidget(results_label2)
         results_group.setLayout(results_layout)
 
         vlayout = QVBoxLayout()
+        vlayout.addWidget(settings_group)
         vlayout.addWidget(results_group)
         vlayout.addStretch(1)
         self.setLayout(vlayout)
@@ -138,8 +149,12 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
                 wdir = runconf.wdir
             if runconf.args_enabled:
                 args = runconf.args
+
+        use_colors = self.get_option('use_colors')
+
         LineProfilerWidget.analyze(self, filename, wdir=wdir, args=args,
-                                   pythonpath=pythonpath)
+                                   pythonpath=pythonpath,
+                                   use_colors=use_colors)
 
 
 #==============================================================================
