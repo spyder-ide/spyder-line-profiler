@@ -478,9 +478,9 @@ class LineProfilerDataTree(QTreeWidget):
                 0, Qt.DisplayRole,
                 _('{func_name} ({time_ms:.3f}ms) in file "{filename}", '
                   'line {line_no}').format(
-                    filename=func_info[0],
-                    line_no=func_info[1],
-                    func_name=func_info[2],
+                    filename=filename,
+                    line_no=start_line_no,
+                    func_name=func_name,
                     time_ms=func_total_time * 1e3))
             # For sorting by time
             func_item.setData(COL_TIME, Qt.DisplayRole, func_total_time * 1e3)
