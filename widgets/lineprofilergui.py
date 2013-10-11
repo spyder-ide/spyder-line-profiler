@@ -20,7 +20,7 @@ from __future__ import with_statement
 
 from spyderlib.qt.QtGui import (QHBoxLayout, QWidget, QMessageBox, QVBoxLayout,
                                 QLabel, QTreeWidget, QTreeWidgetItem,
-                                QApplication)
+                                QApplication, QBrush, QColor)
 from spyderlib.qt.QtCore import SIGNAL, QProcess, QByteArray, Qt, QTextCodec
 locale_codec = QTextCodec.codecForLocale()
 from spyderlib.qt.compat import getopenfilename
@@ -333,6 +333,7 @@ class LineProfilerDataTree(QTreeWidget):
         self.header_list = [_('Code'), _('% Time'), _('Time (ms)'),
                             _('Per hit (ms)'), _('Hits'), _('File:line')]
         self.stats = None      # To be filled by self.load_data()
+        self.max_time = 0      # To be filled by self.load_data()
         self.header().setDefaultAlignment(Qt.AlignCenter)
         self.setColumnCount(len(self.header_list))
         self.setHeaderLabels(self.header_list)
@@ -375,6 +376,7 @@ class LineProfilerDataTree(QTreeWidget):
                 self.stats[filename][func_info[1:]] = stats
 
         # Second pass to load code blocks
+        self.max_time = 0
         for filename, filestats in self.stats.iteritems():
             file_total_time = 0.0
             for func_info, stats in list(filestats.items()):
@@ -395,6 +397,7 @@ class LineProfilerDataTree(QTreeWidget):
                         time_per_hit = line_total_time / hits
                         func_total_time += line_total_time
                         next_stat_line += 1
+                        self.max_time = max(self.max_time, line_total_time)
                     func_stats.append(
                         [line_number, code_line, line_total_time, time_per_hit,
                          hits])
@@ -478,9 +481,17 @@ class LineProfilerDataTree(QTreeWidget):
 
                 for line_info in func_stats[1:]:
                     line_item = QTreeWidgetItem(func_item)
-                    self.fill_item(line_item, filename, line_info[0],
-                                   line_info[1], line_info[2], line_info[5],
-                                   line_info[3], line_info[4])
+                    (line_number, code_line, line_total_time, time_per_hit,
+                     hits, percent) = line_info
+                    self.fill_item(
+                        line_item, filename, line_number, code_line,
+                        line_total_time, percent, time_per_hit, hits)
+
+                    if line_total_time is not None:
+                        alpha = line_total_time / self.max_time
+                        color = QBrush(QColor.fromRgbF(1, 0, 0, alpha))
+                        for col in range(self.columnCount()):
+                            line_item.setBackground(col, color)
 
     def item_activated(self, item):
         filename, line_number = self.get_item_data(item)
