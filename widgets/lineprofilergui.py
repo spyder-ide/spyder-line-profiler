@@ -36,7 +36,7 @@ import hashlib
 
 # Local imports
 from spyderlib.utils.qthelpers import create_toolbutton, get_icon
-from spyderlib.utils.programs import shell_split
+from spyderlib.utils import programs
 from spyderlib.baseconfig import get_conf_path, get_translation
 from spyderlib.widgets.texteditor import TextEditor
 from spyderlib.widgets.comboboxes import PythonModulesComboBox
@@ -55,8 +55,8 @@ COL_POS = 6
 
 
 def is_lineprofiler_installed():
-    from spyderlib.utils.programs import is_module_installed
-    return is_module_installed('line_profiler')
+    return (programs.is_module_installed('line_profiler')
+            and programs.find_program('kernprof.py') is not None)
 
 
 class LineProfilerWidget(QWidget):
@@ -151,15 +151,13 @@ class LineProfilerWidget(QWidget):
         self.start_button.setEnabled(False)
 
         if not is_lineprofiler_installed():
-            # This should happen only on certain GNU/Linux distributions
-            # or when this a home-made Python build because the Python
-            # profilers are included in the Python standard library
-            for widget in (self.datatree, self.filecombo,
-                           self.start_button, self.stop_button):
+            for widget in (self.datatree, self.filecombo, self.log_button,
+                           self.start_button, self.stop_button, browse_button,
+                           self.collapse_button, self.expand_button):
                 widget.setDisabled(True)
-            url = 'http://docs.python.org/library/profile.html'
-            text = '%s <a href=%s>%s</a>' % (_('Please install'), url,
-                                             _("the Python profiler modules"))
+            url = 'http://pythonhosted.org/line_profiler/'
+            text = _('<b>Please install <a href=%s>the line_profiler modules</a></b>') % (
+                url)
             self.datelabel.setText(text)
         else:
             pass  # self.show_data()
@@ -249,7 +247,7 @@ class LineProfilerWidget(QWidget):
         executable = "kernprof.py"
         p_args = ['-lvb', '-o', self.DATAPATH, filename]
         if args:
-            p_args.extend(shell_split(args))
+            p_args.extend(programs.shell_split(args))
         self.process.start(executable, p_args)
 
         running = self.process.waitForStarted()
