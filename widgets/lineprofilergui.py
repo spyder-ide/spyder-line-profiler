@@ -470,11 +470,15 @@ class LineProfilerDataTree(QTreeWidget):
                     line_no=start_line_no,
                     func_name=func_name,
                     time_ms=func_total_time * 1e3))
+            func_item.setFirstColumnSpanned(True)
+            func_item.setData(COL_POS, Qt.DisplayRole,
+                              '%s:%s' % (osp.normpath(filename),
+                                         start_line_no))
+
             # For sorting by time
             func_item.setData(COL_TIME, Qt.DisplayRole, func_total_time * 1e3)
             func_item.setData(COL_PERCENT, Qt.DisplayRole,
                               func_total_time * 1e3)
-            func_item.setFirstColumnSpanned(True)
 
             if self.parent().use_colors:
                 # Choose deteministic unique color for the function
