@@ -158,9 +158,11 @@ class LineProfilerWidget(QWidget):
                            self.collapse_button, self.expand_button):
                 widget.setDisabled(True)
             url = 'http://pythonhosted.org/line_profiler/'
-            text = _('<b>Please install <a href=%s>the line_profiler modules</a></b>') % (
-                url)
+            text = _(
+                '<b>Please install the <a href="%s">line_profiler module</a></b>'
+                ) % url
             self.datelabel.setText(text)
+            self.datelabel.setOpenExternalLinks(True)
         else:
             pass  # self.show_data()
 
