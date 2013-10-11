@@ -53,6 +53,8 @@ COL_PERCENT = 4
 COL_LINE = 5
 COL_POS = 6
 
+CODE_NOT_RUN_COLOR = QBrush(QColor.fromRgb(128, 128, 128, 200))
+
 
 def is_lineprofiler_installed():
     """Checks if the program and the library for line_profiler is installed
@@ -500,6 +502,10 @@ class LineProfilerDataTree(QTreeWidget):
                     color = QBrush(color)
                     for col in range(self.columnCount()):
                         line_item.setBackground(col, color)
+                else:
+
+                    for col in range(self.columnCount()):
+                        line_item.setForeground(col, CODE_NOT_RUN_COLOR)
 
                 # Monospace font for code
                 line_item.setFont(COL_LINE, monospace_font)
