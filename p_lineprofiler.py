@@ -22,6 +22,8 @@ from spyderplugins.widgets.lineprofilergui import (LineProfilerWidget,
 
 
 class LineProfilerConfigPage(PluginConfigPage):
+    """Widget with configuration options for line profiler
+    """
     def setup_page(self):
 
         settings_group = QGroupBox(_("Settings"))
@@ -65,9 +67,7 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
     CONFIGWIDGET_CLASS = LineProfilerConfigPage
 
     def __init__(self, parent=None):
-        LineProfilerWidget.__init__(
-            self, parent=parent,
-            max_entries=self.get_option('max_entries', 50))
+        LineProfilerWidget.__init__(self, parent=parent)
         SpyderPluginMixin.__init__(self, parent)
 
         # Initialize plugin
@@ -118,7 +118,7 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
 
     def refresh_plugin(self):
         """Refresh line profiler widget"""
-        #self.remove_obsolete_items()  # FIXME: not implemented yet
+        pass
 
     def closing_plugin(self, cancelable=False):
         """Perform actions before parent main window is closed"""
@@ -126,8 +126,6 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
 
     def apply_plugin_settings(self, options):
         """Apply configuration file's plugin settings"""
-        # The history depth option will be applied at
-        # next Spyder startup, which is soon enough
         pass
 
     #------ Public API --------------------------------------------------------

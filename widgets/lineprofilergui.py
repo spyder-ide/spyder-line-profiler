@@ -46,15 +46,17 @@ _ = get_translation("p_lineprofiler", dirname="spyderplugins")
 
 
 COL_NO = 0
-COL_LINE = 5
-COL_PERCENT = 4
+COL_HITS = 1
 COL_TIME = 2
 COL_PERHIT = 3
-COL_HITS = 1
+COL_PERCENT = 4
+COL_LINE = 5
 COL_POS = 6
 
 
 def is_lineprofiler_installed():
+    """Checks if the program and the library for line_profiler is installed
+    """
     return (programs.is_module_installed('line_profiler')
             and programs.find_program('kernprof.py') is not None)
 
@@ -66,7 +68,7 @@ class LineProfilerWidget(QWidget):
     DATAPATH = get_conf_path('lineprofiler.results')
     VERSION = '0.0.1'
 
-    def __init__(self, parent, max_entries=100):
+    def __init__(self, parent):
         QWidget.__init__(self, parent)
 
         self.setWindowTitle("Line profiler")
@@ -316,23 +318,7 @@ class LineProfilerDataTree(QTreeWidget):
     """
     Convenience tree widget (with built-in model)
     to store and view line profiler data.
-
-    The quantities calculated by the line profiler are as follows
-    (from profile.Profile):
-    [0] = The number of times this function was called, not counting direct
-          or indirect recursion,
-    [1] = Number of times this function appears on the stack, minus one
-    [2] = Total time spent internal to this function
-    [3] = Cumulative time that this function was present on the stack.  In
-          non-recursive functions, this is the total execution time from start
-          to finish of each invocation of a function, including time spent in
-          all subfunctions.
-    [4] = A dictionary indicating for each function name, the number of times
-          it was called by us.
     """
-    SEP = r"<[=]>"  # separator between filename and linenumber
-    # (must be improbable as a filename to avoid splitting the filename itself)
-
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
         self.header_list = [
@@ -381,7 +367,7 @@ class LineProfilerDataTree(QTreeWidget):
         linecache.checkcache()
         for func_info, stats in lstats.timings.iteritems():
             # func_info is a tuple containing (filename, line, function anme)
-            filename, start_line_no, func_name = func_info
+            filename, start_line_no = func_info[:2]
             filename = filename.decode('utf8')
 
             # Read code
@@ -424,40 +410,40 @@ class LineProfilerDataTree(QTreeWidget):
 
     def fill_item(self, item, filename, line_no, code, time, percent, perhit,
                   hits):
-            item.setData(COL_POS, Qt.DisplayRole,
-                         '%s:%s' % (osp.normpath(filename), line_no))
+        item.setData(COL_POS, Qt.DisplayRole,
+                     '%s:%s' % (osp.normpath(filename), line_no))
 
-            item.setData(COL_NO, Qt.DisplayRole, line_no)
+        item.setData(COL_NO, Qt.DisplayRole, line_no)
 
-            item.setData(COL_LINE, Qt.DisplayRole, code)
+        item.setData(COL_LINE, Qt.DisplayRole, code)
 
-            if percent is None:
-                percent = ''
-            elif isinstance(percent, (int, long, float)):
-                percent = '%.1f' % (100 * percent)
-            item.setData(COL_PERCENT, Qt.DisplayRole, percent)
-            item.setTextAlignment(COL_PERCENT, Qt.AlignCenter)
+        if percent is None:
+            percent = ''
+        elif isinstance(percent, (int, long, float)):
+            percent = '%.1f' % (100 * percent)
+        item.setData(COL_PERCENT, Qt.DisplayRole, percent)
+        item.setTextAlignment(COL_PERCENT, Qt.AlignCenter)
 
-            if time is None:
-                time = ''
-            elif isinstance(time, (int, long, float)):
-                time = '%.3f' % (time * 1e3)
-            item.setData(COL_TIME, Qt.DisplayRole, time)
-            item.setTextAlignment(COL_TIME, Qt.AlignCenter)
+        if time is None:
+            time = ''
+        elif isinstance(time, (int, long, float)):
+            time = '%.3f' % (time * 1e3)
+        item.setData(COL_TIME, Qt.DisplayRole, time)
+        item.setTextAlignment(COL_TIME, Qt.AlignCenter)
 
-            if perhit is None:
-                perhit = ''
-            elif isinstance(perhit, (int, long, float)):
-                perhit = '%.3f' % (perhit * 1e3)
-            item.setData(COL_PERHIT, Qt.DisplayRole, perhit)
-            item.setTextAlignment(COL_PERHIT, Qt.AlignCenter)
+        if perhit is None:
+            perhit = ''
+        elif isinstance(perhit, (int, long, float)):
+            perhit = '%.3f' % (perhit * 1e3)
+        item.setData(COL_PERHIT, Qt.DisplayRole, perhit)
+        item.setTextAlignment(COL_PERHIT, Qt.AlignCenter)
 
-            if hits is None:
-                hits = ''
-            elif isinstance(hits, (int, long, float)):
-                hits = '%d' % hits
-            item.setData(COL_HITS, Qt.DisplayRole, hits)
-            item.setTextAlignment(COL_HITS, Qt.AlignCenter)
+        if hits is None:
+            hits = ''
+        elif isinstance(hits, (int, long, float)):
+            hits = '%d' % hits
+        item.setData(COL_HITS, Qt.DisplayRole, hits)
+        item.setTextAlignment(COL_HITS, Qt.AlignCenter)
 
     def populate_tree(self):
         """Create each item (and associated data) in the tree"""
@@ -516,13 +502,9 @@ class LineProfilerDataTree(QTreeWidget):
                 # Monospace font for code
                 line_item.setFont(COL_LINE, monospace_font)
 
-    def get_item_data(self, item):
-        """Get tree item user data: (filename, line_no)"""
-        filename, line_no_str = str(item.text(COL_POS)).rsplit(":", 1)
-        return filename, int(line_no_str)
-
     def item_activated(self, item):
-        filename, line_no = self.get_item_data(item)
+        filename, line_no = str(item.text(COL_POS)).rsplit(":", 1)
+        line_no = int(line_no)
         self.parent().emit(SIGNAL("edit_goto(QString,int,QString)"),
                            filename, line_no, '')
         print(filename, line_no)
