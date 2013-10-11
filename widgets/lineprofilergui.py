@@ -384,8 +384,8 @@ class LineProfilerDataTree(QTreeWidget):
             for line_no, code_line in enumerate(block_lines):
                 line_no += start_line_no
                 code_line = code_line.rstrip('\n').decode('utf8')
-                if (next_stat_line < len(stats)
-                        and line_no != stats[next_stat_line][0]):
+                if (next_stat_line >= len(stats)
+                        or line_no != stats[next_stat_line][0]):
                     # Line didn't run
                     hits, line_total_time, time_per_hit = None, None, None
                 else:
