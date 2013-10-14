@@ -17,6 +17,13 @@ For example on Linux this should be ``/usr/lib/python2.7/dist-packages/spyderplu
 
 The line_profiler module and the kernprof.py script have to be installed and acessible on the system. See the `official website <http://pythonhosted.org/line_profiler/>`_ for instructions.
 
+Usage
+-----
+
+Add a ``@profile`` decorator to the functions that you wish to profile then press Shift+F10 (default) to run the line profiler on the current script or go to ``Execution > Profile line by line``.
+
+The results will be shown in a dockwidget, grouped by function. Lines with a stronger color take more time to run.
+
 Screenshot
 ----------
 
