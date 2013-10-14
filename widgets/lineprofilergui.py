@@ -376,7 +376,7 @@ class LineProfilerDataTree(QTreeWidget):
             # Read code
             start_line_no -= 1  # include the @profile decorator
             all_lines = linecache.getlines(filename)
-            block_lines = inspect.getblock(all_lines[start_line_no-1:])
+            block_lines = inspect.getblock(all_lines[start_line_no:])
 
             # Loop on each line of code
             func_stats = []
