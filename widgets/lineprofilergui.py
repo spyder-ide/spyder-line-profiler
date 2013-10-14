@@ -483,7 +483,7 @@ class LineProfilerDataTree(QTreeWidget):
             if self.parent().use_colors:
                 # Choose deteministic unique color for the function
                 md5 = hashlib.md5(filename + func_name).hexdigest()
-                hue = int(int(md5[:3], 16) * 360 / 16**3)
+                hue = (int(md5[:2], 16) - 68) % 360  # avoid blue (unreadable)
                 func_color = QColor.fromHsv(hue, 200, 255)
             else:
                 # Red color only
