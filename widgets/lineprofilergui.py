@@ -55,6 +55,7 @@ COL_POS = 0  # Position is not displayed but set as Qt.UserRole
 
 CODE_NOT_RUN_COLOR = QBrush(QColor.fromRgb(128, 128, 128, 200))
 
+WEBSITE_URL = 'http://pythonhosted.org/line_profiler/'
 
 def is_lineprofiler_installed():
     """Checks if the program and the library for line_profiler is installed
@@ -159,10 +160,9 @@ class LineProfilerWidget(QWidget):
                            self.start_button, self.stop_button, browse_button,
                            self.collapse_button, self.expand_button):
                 widget.setDisabled(True)
-            url = 'http://pythonhosted.org/line_profiler/'
             text = _(
                 '<b>Please install the <a href="%s">line_profiler module</a></b>'
-                ) % url
+                ) % WEBSITE_URL
             self.datelabel.setText(text)
             self.datelabel.setOpenExternalLinks(True)
         else:
@@ -449,6 +449,20 @@ class LineProfilerDataTree(QTreeWidget):
 
     def populate_tree(self):
         """Create each item (and associated data) in the tree"""
+        if not self.stats:
+            warn_item = QTreeWidgetItem(self)
+            warn_item.setData(
+                0, Qt.DisplayRole,
+                _('No timings to display. '
+                  'Did you forget to add @profile decorators ?')
+                .format(url=WEBSITE_URL))
+            warn_item.setFirstColumnSpanned(True)
+            warn_item.setTextAlignment(0, Qt.AlignCenter)
+            font = warn_item.font(0)
+            font.setStyle(QFont.StyleItalic)
+            warn_item.setFont(0, font)
+            return
+
         try:
             monospace_font = self.window().editor.get_plugin_font()
         except AttributeError:  # If run standalone for testing
