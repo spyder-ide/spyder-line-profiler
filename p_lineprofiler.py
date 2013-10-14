@@ -106,7 +106,7 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
                      self.main.redirect_internalshell_stdio)
         self.main.add_dockwidget(self)
 
-        lineprofiler_act = create_action(self, _("Profile"),
+        lineprofiler_act = create_action(self, _("Profile line by line"),
                                          icon=get_icon('profiler.png'),
                                          triggered=self.run_lineprofiler)
         lineprofiler_act.setEnabled(is_lineprofiler_installed())
