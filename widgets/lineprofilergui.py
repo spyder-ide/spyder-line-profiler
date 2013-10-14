@@ -51,7 +51,7 @@ COL_TIME = 2
 COL_PERHIT = 3
 COL_PERCENT = 4
 COL_LINE = 5
-COL_POS = 6
+COL_POS = 0  # Position is not displayed but set as Qt.UserRole
 
 CODE_NOT_RUN_COLOR = QBrush(QColor.fromRgb(128, 128, 128, 200))
 
@@ -327,13 +327,12 @@ class LineProfilerDataTree(QTreeWidget):
         QTreeWidget.__init__(self, parent)
         self.header_list = [
             _('Line #'), _('Hits'), _('Time (ms)'), _('Per hit (ms)'),
-            _('% Time'), _('Line contents'), _('File:line')]
+            _('% Time'), _('Line contents')]
         self.stats = None      # To be filled by self.load_data()
         self.max_time = 0      # To be filled by self.load_data()
         self.header().setDefaultAlignment(Qt.AlignCenter)
         self.setColumnCount(len(self.header_list))
         self.setHeaderLabels(self.header_list)
-        self.setColumnHidden(self.columnCount()-1, True)
         self.clear()
         self.connect(self, SIGNAL('itemActivated(QTreeWidgetItem*,int)'),
                      self.item_activated)
@@ -414,8 +413,7 @@ class LineProfilerDataTree(QTreeWidget):
 
     def fill_item(self, item, filename, line_no, code, time, percent, perhit,
                   hits):
-        item.setData(COL_POS, Qt.DisplayRole,
-                     '%s:%s' % (osp.normpath(filename), line_no))
+        item.setData(COL_POS, Qt.UserRole, (osp.normpath(filename), line_no))
 
         item.setData(COL_NO, Qt.DisplayRole, line_no)
 
@@ -471,9 +469,8 @@ class LineProfilerDataTree(QTreeWidget):
                     func_name=func_name,
                     time_ms=func_total_time * 1e3))
             func_item.setFirstColumnSpanned(True)
-            func_item.setData(COL_POS, Qt.DisplayRole,
-                              '%s:%s' % (osp.normpath(filename),
-                                         start_line_no))
+            func_item.setData(COL_POS, Qt.UserRole,
+                              (osp.normpath(filename), start_line_no))
 
             # For sorting by time
             func_item.setData(COL_TIME, Qt.DisplayRole, func_total_time * 1e3)
@@ -515,8 +512,7 @@ class LineProfilerDataTree(QTreeWidget):
                 line_item.setFont(COL_LINE, monospace_font)
 
     def item_activated(self, item):
-        filename, line_no = str(item.text(COL_POS)).rsplit(":", 1)
-        line_no = int(line_no)
+        filename, line_no = item.data(COL_POS, Qt.UserRole)
         self.parent().emit(SIGNAL("edit_goto(QString,int,QString)"),
                            filename, line_no, '')
 
