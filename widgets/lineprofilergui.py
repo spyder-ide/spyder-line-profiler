@@ -383,7 +383,7 @@ class LineProfilerDataTree(QTreeWidget):
             func_total_time = 0.0
             next_stat_line = 0
             for line_no, code_line in enumerate(block_lines):
-                line_no += start_line_no
+                line_no += start_line_no + 1  # Lines start at 1
                 code_line = code_line.rstrip('\n').decode('utf8')
                 if (next_stat_line >= len(stats)
                         or line_no != stats[next_stat_line][0]):
