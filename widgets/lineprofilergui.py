@@ -57,6 +57,7 @@ CODE_NOT_RUN_COLOR = QBrush(QColor.fromRgb(128, 128, 128, 200))
 
 WEBSITE_URL = 'http://pythonhosted.org/line_profiler/'
 
+
 def is_lineprofiler_installed():
     """Checks if the program and the library for line_profiler is installed
     """
