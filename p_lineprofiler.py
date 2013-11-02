@@ -148,15 +148,9 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
             if runconf.args_enabled:
                 args = runconf.args
 
-        try:
-            use_colors = self.get_option('use_colors')
-        except configparser.NoOptionError:
-            use_colors = self.set_option('use_colors', True)
-            use_colors = True
-
-        LineProfilerWidget.analyze(self, filename, wdir=wdir, args=args,
-                                   pythonpath=pythonpath,
-                                   use_colors=use_colors)
+        LineProfilerWidget.analyze(
+            self, filename, wdir=wdir, args=args, pythonpath=pythonpath,
+            use_colors=self.get_option('use_colors', True))
 
 
 #==============================================================================
