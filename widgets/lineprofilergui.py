@@ -261,7 +261,7 @@ class LineProfilerWidget(QWidget):
             executable = executable.replace(os.sep, '/')
             self.process.start(executable)
         else:
-            executable = 'kernprof'
+            executable = 'kernprof.py'
             self.process.start(executable, p_args)
 
         running = self.process.waitForStarted()
