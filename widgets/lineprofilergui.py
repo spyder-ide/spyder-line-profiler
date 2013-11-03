@@ -255,8 +255,8 @@ class LineProfilerWidget(QWidget):
             # confusion with escape characters (otherwise, for example, '\t'
             # will be interpreted as a tabulation):
             filename = osp.normpath(filename).replace(os.sep, '/')
-            bin_py = os.path.join(sys.prefix, 'Scripts')
-            executable = 'python {}/kernprof.py'.format(bin_py)
+            script_path = programs.find_program('kernprof.py')
+            executable = '{0} {1}'.format(sys.executable, script_path)
             executable += ' ' + ' '.join(p_args)
             executable = executable.replace(os.sep, '/')
             self.process.start(executable)
