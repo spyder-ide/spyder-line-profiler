@@ -22,8 +22,10 @@ from spyderplugins.widgets.lineprofilergui import (LineProfilerWidget,
 
 
 class LineProfilerConfigPage(PluginConfigPage):
+
     """Widget with configuration options for line profiler
     """
+
     def setup_page(self):
 
         settings_group = QGroupBox(_("Settings"))
@@ -62,6 +64,7 @@ class LineProfilerConfigPage(PluginConfigPage):
 
 
 class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
+
     """Line profiler"""
     CONF_SECTION = 'lineprofiler'
     CONFIGWIDGET_CLASS = LineProfilerConfigPage
