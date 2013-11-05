@@ -11,7 +11,7 @@ The code is an adaptation of the profiler plugin integrated in `spyder <https://
 Install instructions
 --------------------
 
-Put the files ``p_line_profiler.py`` and ``widgets/lineprofilergui.py`` in the directory ``spyderplugins/`` from the spyder installation.
+Put the files ``p_lineprofiler.py`` and ``widgets/lineprofilergui.py`` in the directory ``spyderplugins/`` from the spyder installation.
 
 For example on Linux this should be ``/usr/lib/python2.7/dist-packages/spyderplugins/`` or equivalent.
 
