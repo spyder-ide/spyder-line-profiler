@@ -41,7 +41,12 @@ from spyderlib.baseconfig import get_conf_path, get_translation
 from spyderlib.widgets.texteditor import TextEditor
 from spyderlib.widgets.comboboxes import PythonModulesComboBox
 from spyderlib.widgets.externalshell import baseshell
-from spyderlib.py3compat import to_text_string, getcwd
+try:
+    from spyderlib.py3compat import to_text_string, getcwd
+except ImportError:
+    # python2
+    to_text_string = unicode
+    getcwd = os.getcwdu
 _ = get_translation("p_lineprofiler", dirname="spyderplugins")
 
 
