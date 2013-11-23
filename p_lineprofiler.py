@@ -16,9 +16,8 @@ from spyderlib.baseconfig import get_translation
 _ = get_translation("p_lineprofiler", dirname="spyderplugins")
 from spyderlib.utils.qthelpers import get_icon, create_action
 from spyderlib.plugins import SpyderPluginMixin, PluginConfigPage, runconfig
-from spyderlib.py3compat import configparser
-from spyderplugins.widgets.lineprofilergui import (LineProfilerWidget,
-                                                   is_lineprofiler_installed)
+from spyderplugins.widgets.lineprofilergui import (
+    LineProfilerWidget, is_lineprofiler_installed)
 
 
 class LineProfilerConfigPage(PluginConfigPage):
