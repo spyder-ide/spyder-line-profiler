@@ -434,28 +434,28 @@ class LineProfilerDataTree(QTreeWidget):
 
         if percent is None:
             percent = ''
-        elif isinstance(percent, (int, long, float)):
+        else:
             percent = '%.1f' % (100 * percent)
         item.setData(COL_PERCENT, Qt.DisplayRole, percent)
         item.setTextAlignment(COL_PERCENT, Qt.AlignCenter)
 
         if time is None:
             time = ''
-        elif isinstance(time, (int, long, float)):
+        else:
             time = '%.3f' % (time * 1e3)
         item.setData(COL_TIME, Qt.DisplayRole, time)
         item.setTextAlignment(COL_TIME, Qt.AlignCenter)
 
         if perhit is None:
             perhit = ''
-        elif isinstance(perhit, (int, long, float)):
+        else:
             perhit = '%.3f' % (perhit * 1e3)
         item.setData(COL_PERHIT, Qt.DisplayRole, perhit)
         item.setTextAlignment(COL_PERHIT, Qt.AlignCenter)
 
         if hits is None:
             hits = ''
-        elif isinstance(hits, (int, long, float)):
+        else:
             hits = '%d' % hits
         item.setData(COL_HITS, Qt.DisplayRole, hits)
         item.setTextAlignment(COL_HITS, Qt.AlignCenter)
