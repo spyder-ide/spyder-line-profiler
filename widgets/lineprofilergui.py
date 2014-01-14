@@ -29,7 +29,6 @@ import sys
 import os
 import os.path as osp
 import time
-import cPickle
 import linecache
 import inspect
 import hashlib
@@ -42,11 +41,12 @@ from spyderlib.widgets.texteditor import TextEditor
 from spyderlib.widgets.comboboxes import PythonModulesComboBox
 from spyderlib.widgets.externalshell import baseshell
 try:
-    from spyderlib.py3compat import to_text_string, getcwd
+    from spyderlib.py3compat import to_text_string, getcwd, pickle
 except ImportError:
     # python2
     to_text_string = unicode
     getcwd = os.getcwdu
+    import cPickle as pickle
 _ = get_translation("p_lineprofiler", dirname="spyderplugins")
 
 
@@ -376,7 +376,7 @@ class LineProfilerDataTree(QTreeWidget):
         #          (line_no3, hits3, total_time3)]}
         # lstats.unit = time_factor
         with open(profdatafile, 'rb') as fid:
-            lstats = cPickle.load(fid)
+            lstats = pickle.load(fid)
 
         # First pass to group by filename
         self.stats = dict()
