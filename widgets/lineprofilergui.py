@@ -381,7 +381,7 @@ class LineProfilerDataTree(QTreeWidget):
         # First pass to group by filename
         self.stats = dict()
         linecache.checkcache()
-        for func_info, stats in lstats.timings.iteritems():
+        for func_info, stats in lstats.timings.items():
             # func_info is a tuple containing (filename, line, function anme)
             filename, start_line_no = func_info[:2]
             filename = filename.decode('utf8')
@@ -482,7 +482,7 @@ class LineProfilerDataTree(QTreeWidget):
             monospace_font = QFont("Courier New")
             monospace_font.setPointSize(10)
 
-        for func_info, func_data in self.stats.iteritems():
+        for func_info, func_data in self.stats.items():
             # Function name and position
             filename, start_line_no, func_name = func_info
             func_stats, func_total_time = func_data
