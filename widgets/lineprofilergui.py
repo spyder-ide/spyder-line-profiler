@@ -384,7 +384,6 @@ class LineProfilerDataTree(QTreeWidget):
         for func_info, stats in lstats.timings.items():
             # func_info is a tuple containing (filename, line, function anme)
             filename, start_line_no = func_info[:2]
-            filename = filename.decode('utf8')
 
             # Read code
             start_line_no -= 1  # include the @profile decorator
@@ -397,7 +396,7 @@ class LineProfilerDataTree(QTreeWidget):
             next_stat_line = 0
             for line_no, code_line in enumerate(block_lines):
                 line_no += start_line_no + 1  # Lines start at 1
-                code_line = code_line.rstrip('\n').decode('utf8')
+                code_line = code_line.rstrip('\n')
                 if (next_stat_line >= len(stats)
                         or line_no != stats[next_stat_line][0]):
                     # Line didn't run
@@ -506,7 +505,7 @@ class LineProfilerDataTree(QTreeWidget):
 
             if self.parent().use_colors:
                 # Choose deteministic unique color for the function
-                md5 = hashlib.md5(filename + func_name).hexdigest()
+                md5 = hashlib.md5((filename + func_name).encode("utf8")).hexdigest()
                 hue = (int(md5[:2], 16) - 68) % 360  # avoid blue (unreadable)
                 func_color = QColor.fromHsv(hue, 200, 255)
             else:
