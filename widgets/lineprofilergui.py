@@ -251,22 +251,24 @@ class LineProfilerWidget(QWidget):
         self.output = ''
         self.error_output = ''
 
-        p_args = ['-lvb', '-o', '"' + self.DATAPATH + '"',
-                  '"' + filename + '"']
-        if args:
-            p_args.extend(programs.shell_split(args))
-
         if os.name == 'nt':
             # On Windows, one has to replace backslashes by slashes to avoid
             # confusion with escape characters (otherwise, for example, '\t'
             # will be interpreted as a tabulation):
             filename = osp.normpath(filename).replace(os.sep, '/')
+            p_args = ['-lvb', '-o', '"' + self.DATAPATH + '"',
+                      '"' + filename + '"']
+            if args:
+                p_args.extend(programs.shell_split(args))
             script_path = programs.find_program('kernprof.py')
             executable = '{0} {1}'.format(sys.executable, script_path)
             executable += ' ' + ' '.join(p_args)
             executable = executable.replace(os.sep, '/')
             self.process.start(executable)
         else:
+            p_args = ['-lvb', '-o', self.DATAPATH, filename]
+            if args:
+                p_args.extend(programs.shell_split(args))
             executable = 'kernprof.py'
             self.process.start(executable, p_args)
 
