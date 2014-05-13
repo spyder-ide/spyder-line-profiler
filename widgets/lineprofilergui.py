@@ -251,7 +251,8 @@ class LineProfilerWidget(QWidget):
         self.output = ''
         self.error_output = ''
 
-        p_args = ['-lvb', '-o', self.DATAPATH, filename]
+        p_args = ['-lvb', '-o', '"' + self.DATAPATH + '"',
+                  '"' + filename + '"']
         if args:
             p_args.extend(programs.shell_split(args))
 
