@@ -67,7 +67,7 @@ def is_lineprofiler_installed():
     """Checks if the program and the library for line_profiler is installed
     """
     return (programs.is_module_installed('line_profiler')
-            and programs.find_program('kernprof.py') is not None)
+            and programs.find_program('kernprof') is not None)
 
 
 class LineProfilerWidget(QWidget):
@@ -260,7 +260,7 @@ class LineProfilerWidget(QWidget):
                       '"' + filename + '"']
             if args:
                 p_args.extend(programs.shell_split(args))
-            script_path = programs.find_program('kernprof.py')
+            script_path = programs.find_program('kernprof')
             executable = '{0} {1}'.format(sys.executable, script_path)
             executable += ' ' + ' '.join(p_args)
             executable = executable.replace(os.sep, '/')
@@ -269,7 +269,7 @@ class LineProfilerWidget(QWidget):
             p_args = ['-lvb', '-o', self.DATAPATH, filename]
             if args:
                 p_args.extend(programs.shell_split(args))
-            executable = 'kernprof.py'
+            executable = 'kernprof'
             self.process.start(executable, p_args)
 
         running = self.process.waitForStarted()
@@ -367,7 +367,7 @@ class LineProfilerDataTree(QTreeWidget):
         self.sortItems(COL_POS, Qt.AscendingOrder)
 
     def load_data(self, profdatafile):
-        """Load line profiler data saved by kernprof.py module"""
+        """Load line profiler data saved by kernprof module"""
         # lstats has the following layout :
         # lstats.timings =
         #     {(filename1, line_no1, function_name1):
