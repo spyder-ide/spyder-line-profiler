@@ -15,9 +15,7 @@ Put the files ``p_lineprofiler.py`` and ``widgets/lineprofilergui.py`` in the di
 
 For example on Linux this should be ``/usr/lib/python2.7/dist-packages/spyderplugins/`` or equivalent.
 
-The line_profiler module and the kernprof.py script have to be installed and accessible on the system. See the `official website <http://pythonhosted.org/line_profiler/>`_ for instructions.
-
-Note that the official line_profiler runs on python2 only. If you want to use it with python3, use the following fork: https://bitbucket.org/kmike/line_profiler.
+The line_profiler module and the kernprof script have to be installed and accessible on the system. See the `official website <http://pythonhosted.org/line_profiler/>`_ for instructions.
 
 Usage
 -----
