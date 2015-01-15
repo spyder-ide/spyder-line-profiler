@@ -260,8 +260,7 @@ class LineProfilerWidget(QWidget):
                       '"' + filename + '"']
             if args:
                 p_args.extend(programs.shell_split(args))
-            script_path = programs.find_program('kernprof')
-            executable = '{0} {1}'.format(sys.executable, script_path)
+            executable = programs.find_program('kernprof')
             executable += ' ' + ' '.join(p_args)
             executable = executable.replace(os.sep, '/')
             self.process.start(executable)
