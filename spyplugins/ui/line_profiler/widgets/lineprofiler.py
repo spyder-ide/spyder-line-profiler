@@ -11,35 +11,32 @@ Line Profiler widget
 
 See the official documentation of line_profiler:
 http://pythonhosted.org/line_profiler/
-
-Questions for Pierre and others:
-    - Where in the menu should line profiler go?  Run > Profile code by line ?
 """
-
+# Standard library imports
 from __future__ import with_statement
-
-from spyderlib.qt.QtGui import (QHBoxLayout, QWidget, QMessageBox, QVBoxLayout,
-                                QLabel, QTreeWidget, QTreeWidgetItem,
-                                QApplication, QBrush, QColor, QFont)
-from spyderlib.qt.QtCore import SIGNAL, QProcess, QByteArray, Qt, QTextCodec
-locale_codec = QTextCodec.codecForLocale()
-from spyderlib.qt.compat import getopenfilename
-
-import sys
+import hashlib
+import inspect
+import linecache
 import os
 import os.path as osp
 import time
-import linecache
-import inspect
-import hashlib
+import sys
+
+# Third party imports
+from spyderlib.qt.compat import getopenfilename
+from spyderlib.qt.QtCore import QByteArray, QProcess, Qt, QTextCodec, SIGNAL
+from spyderlib.qt.QtGui import (QHBoxLayout, QWidget, QMessageBox, QVBoxLayout,
+                                QLabel, QTreeWidget, QTreeWidgetItem,
+                                QApplication, QBrush, QColor, QFont)
 
 # Local imports
-from spyderlib.utils.qthelpers import create_toolbutton, get_icon
-from spyderlib.utils import programs
 from spyderlib.config.base import get_conf_path, get_translation
-from spyderlib.widgets.texteditor import TextEditor
+from spyderlib.utils import programs
+from spyderlib.utils.qthelpers import create_toolbutton, get_icon
 from spyderlib.widgets.comboboxes import PythonModulesComboBox
 from spyderlib.widgets.externalshell import baseshell
+from spyderlib.widgets.texteditor import TextEditor
+
 try:
     from spyderlib.py3compat import to_text_string, getcwd, pickle
 except ImportError:
@@ -47,7 +44,9 @@ except ImportError:
     to_text_string = unicode
     getcwd = os.getcwdu
     import cPickle as pickle
-_ = get_translation("line_profiler", dirname="spyplugins.ui.line_profiler")
+
+_ = get_translation("line_profiler", dirname="spyderplugins.ui.line_profiler")
+locale_codec = QTextCodec.codecForLocale()
 
 
 COL_NO = 0
@@ -64,7 +63,8 @@ WEBSITE_URL = 'http://pythonhosted.org/line_profiler/'
 
 
 def is_lineprofiler_installed():
-    """Checks if the program and the library for line_profiler is installed
+    """
+    Checks if the program and the library for line_profiler is installed.
     """
     return (programs.is_module_installed('line_profiler')
             and programs.find_program('kernprof') is not None)
@@ -72,7 +72,7 @@ def is_lineprofiler_installed():
 
 class LineProfilerWidget(QWidget):
     """
-    Line profiler widget
+    Line profiler widget.
     """
     DATAPATH = get_conf_path('lineprofiler.results')
     VERSION = '0.0.1'

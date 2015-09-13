@@ -6,11 +6,11 @@
 # Licensed under the terms of the MIT License
 # (see spyderlib/__init__.py for details)
 
-"""Line profiler Plugin"""
+"""Line profiler Plugin."""
 
 # Third party imports
-from spyderlib.qt.QtGui import QGroupBox, QLabel, QVBoxLayout
 from spyderlib.qt.QtCore import Qt, SIGNAL
+from spyderlib.qt.QtGui import QGroupBox, QLabel, QVBoxLayout
 
 from spyderlib.config.base import get_translation
 from spyderlib.plugins import SpyderPluginMixin, PluginConfigPage, runconfig
@@ -19,8 +19,7 @@ from spyderlib.utils.qthelpers import create_action
 
 # Local imports
 from .data import images
-from .widgets.lineprofiler import (LineProfilerWidget,
-				      is_lineprofiler_installed)
+from .widgets.lineprofiler import LineProfilerWidget, is_lineprofiler_installed
 
 
 _ = get_translation("line_profiler", dirname="spyplugins.ui.line_profiler")
