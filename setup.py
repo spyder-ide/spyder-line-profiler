@@ -7,7 +7,6 @@ Setup script for spyder.line_profiler
 from setuptools import setup, find_packages
 import os
 import os.path as osp
-import sys
 
 
 def get_version():
@@ -57,10 +56,11 @@ setup(
     url='https://github.com/spyder-ide/spyder.line_profiler',
     license='MIT',
     author='Joseph Martinot-Lagarde',
-    #author_email='',
+    author_email='',
     maintainer='The Spyder Development Team',
-    #maintainer_email='',
-    description=' This is a plugin to run the python line profiler from within the Spyder editor.',
+    maintainer_email='',
+    description='This is a plugin to run the python line profiler from within'
+                ' the Spyder editor.',
     long_description=get_readme(),
     classifiers=[
         'Development Status :: 4 - Beta',

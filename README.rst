@@ -27,4 +27,4 @@ Screenshot
 ----------
 Line profiler:
 
-.. image:: spyder_line_profiler.png
+.. image:: img_src/screenshot_profler.png
