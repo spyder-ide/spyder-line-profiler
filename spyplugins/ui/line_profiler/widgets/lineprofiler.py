@@ -45,7 +45,7 @@ except ImportError:
     getcwd = os.getcwdu
     import cPickle as pickle
 
-_ = get_translation("line_profiler", dirname="spyderplugins.ui.line_profiler")
+_ = get_translation("line_profiler", dirname="spyplugins.ui.line_profiler")
 locale_codec = QTextCodec.codecForLocale()
 
 
@@ -559,4 +559,3 @@ def test():
 
 if __name__ == '__main__':
     test()
- 

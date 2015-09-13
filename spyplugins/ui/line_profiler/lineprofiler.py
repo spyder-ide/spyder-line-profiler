@@ -87,7 +87,7 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
     def get_plugin_icon(self):
         """Return widget icon."""
         path = images.__path__[0]
-        return ima.icon('spyplugins.ui.line_profiler', icon_path=path)
+        return ima.icon('spyder.line_profiler', icon_path=path)
 
     def get_focus_widget(self):
         """
@@ -107,10 +107,10 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
 
     def register_plugin(self):
         """Register plugin in Spyder's main window."""
-        self.connect(self, SIGNAL("edit_goto(QString,int,QString)"),
-                     self.main.editor.load)
-        self.connect(self, SIGNAL('redirect_stdio(bool)'),
-                     self.main.redirect_internalshell_stdio)
+#        self.connect(self, SIGNAL("edit_goto(QString,int,QString)"),
+#                     self.main.editor.load)
+#        self.connect(self, SIGNAL('redirect_stdio(bool)'),
+#                     self.main.redirect_internalshell_stdio)
         self.main.add_dockwidget(self)
 
         lineprofiler_act = create_action(self, _("Profile line by line"),
@@ -135,7 +135,7 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
         """Apply configuration file's plugin settings."""
         pass
 
-    #------ Public API --------------------------------------------------------
+    # --- Public API ----------------------------------------------------------
     def run_lineprofiler(self):
         """Run line profiler."""
         self.analyze(self.main.editor.get_current_filename())
