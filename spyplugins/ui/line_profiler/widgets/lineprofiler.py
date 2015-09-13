@@ -7,13 +7,13 @@
 # (see spyderlib/__init__.py for details)
 
 """
-Memory Profiler widget
+Line Profiler widget
 
-See the official documentation of memory_profiler:
-https://pypi.python.org/pypi/memory_profiler/
+See the official documentation of line_profiler:
+http://pythonhosted.org/line_profiler/
 
 Questions for Pierre and others:
-    - Where in the menu should memory profiler go?  Run > Profile memory by line ?
+    - Where in the menu should line profiler go?  Run > Profile code by line ?
 """
 
 from __future__ import with_statement
@@ -36,47 +36,51 @@ import hashlib
 # Local imports
 from spyderlib.utils.qthelpers import create_toolbutton, get_icon
 from spyderlib.utils import programs
-from spyderlib.baseconfig import get_conf_path, get_translation
+from spyderlib.config.base import get_conf_path, get_translation
 from spyderlib.widgets.texteditor import TextEditor
 from spyderlib.widgets.comboboxes import PythonModulesComboBox
 from spyderlib.widgets.externalshell import baseshell
 try:
-    from spyderlib.py3compat import to_text_string, getcwd
+    from spyderlib.py3compat import to_text_string, getcwd, pickle
 except ImportError:
     # python2
     to_text_string = unicode
     getcwd = os.getcwdu
-_ = get_translation("p_memoryprofiler", dirname="spyderplugins")
+    import cPickle as pickle
+_ = get_translation("line_profiler", dirname="spyplugins.ui.line_profiler")
 
 
 COL_NO = 0
-COL_USAGE = 1
-COL_INCREMENT = 2
-COL_LINE = 3
+COL_HITS = 1
+COL_TIME = 2
+COL_PERHIT = 3
+COL_PERCENT = 4
+COL_LINE = 5
 COL_POS = 0  # Position is not displayed but set as Qt.UserRole
 
 CODE_NOT_RUN_COLOR = QBrush(QColor.fromRgb(128, 128, 128, 200))
 
-WEBSITE_URL = 'https://pypi.python.org/pypi/memory_profiler/'
+WEBSITE_URL = 'http://pythonhosted.org/line_profiler/'
 
 
-def is_memoryprofiler_installed():
-    """Checks if the library for memory_profiler is installed
+def is_lineprofiler_installed():
+    """Checks if the program and the library for line_profiler is installed
     """
-    return programs.is_module_installed('memory_profiler')
+    return (programs.is_module_installed('line_profiler')
+            and programs.find_program('kernprof') is not None)
 
 
-class MemoryProfilerWidget(QWidget):
+class LineProfilerWidget(QWidget):
     """
-    Memory profiler widget
+    Line profiler widget
     """
-    DATAPATH = get_conf_path('memoryprofiler.results')
+    DATAPATH = get_conf_path('lineprofiler.results')
     VERSION = '0.0.1'
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
 
-        self.setWindowTitle("Memory profiler")
+        self.setWindowTitle("Line profiler")
 
         self.output = None
         self.error_output = None
@@ -91,8 +95,8 @@ class MemoryProfilerWidget(QWidget):
 
         self.start_button = create_toolbutton(
             self, icon=get_icon('run.png'),
-            text=_("Profile memory usage"),
-            tip=_("Run memory profiler"),
+            text=_("Profile by line"),
+            tip=_("Run line profiler"),
             triggered=self.start, text_beside_icon=True)
         self.stop_button = create_toolbutton(
             self,
@@ -120,7 +124,7 @@ class MemoryProfilerWidget(QWidget):
             tip=_("Show program's output"),
             triggered=self.show_log)
 
-        self.datatree = MemoryProfilerDataTree(self)
+        self.datatree = LineProfilerDataTree(self)
 
         self.collapse_button = create_toolbutton(
             self,
@@ -157,13 +161,13 @@ class MemoryProfilerWidget(QWidget):
         self.set_running_state(False)
         self.start_button.setEnabled(False)
 
-        if not is_memoryprofiler_installed():
+        if not is_lineprofiler_installed():
             for widget in (self.datatree, self.filecombo, self.log_button,
                            self.start_button, self.stop_button, browse_button,
                            self.collapse_button, self.expand_button):
                 widget.setDisabled(True)
             text = _(
-                '<b>Please install the <a href="%s">memory_profiler module</a></b>'
+                '<b>Please install the <a href="%s">line_profiler module</a></b>'
                 ) % WEBSITE_URL
             self.datelabel.setText(text)
             self.datelabel.setOpenExternalLinks(True)
@@ -173,7 +177,7 @@ class MemoryProfilerWidget(QWidget):
     def analyze(self, filename, wdir=None, args=None, pythonpath=None,
                 use_colors=True):
         self.use_colors = use_colors
-        if not is_memoryprofiler_installed():
+        if not is_lineprofiler_installed():
             return
         self.kill_if_running()
         #index, _data = self.get_data(filename)
@@ -200,12 +204,12 @@ class MemoryProfilerWidget(QWidget):
 
     def show_log(self):
         if self.output:
-            TextEditor(self.output, title=_("Memory profiler output"),
+            TextEditor(self.output, title=_("Line profiler output"),
                        readonly=True, size=(700, 500)).exec_()
 
     def show_errorlog(self):
         if self.error_output:
-            TextEditor(self.error_output, title=_("Memory profiler output"),
+            TextEditor(self.error_output, title=_("Line profiler output"),
                        readonly=True, size=(700, 500)).exec_()
 
     def start(self, wdir=None, args=None, pythonpath=None):
@@ -247,29 +251,24 @@ class MemoryProfilerWidget(QWidget):
         self.output = ''
         self.error_output = ''
 
-        # remove previous results, since memory_profiler appends to output file
-        # instead of replacing
-        if osp.isfile(self.DATAPATH):
-            os.remove(self.DATAPATH)
-            
         if os.name == 'nt':
             # On Windows, one has to replace backslashes by slashes to avoid
             # confusion with escape characters (otherwise, for example, '\t'
             # will be interpreted as a tabulation):
             filename = osp.normpath(filename).replace(os.sep, '/')
-            p_args = ['-m', 'memory_profiler', '-o', '"' + self.DATAPATH + '"',
+            p_args = ['-lvb', '-o', '"' + self.DATAPATH + '"',
                       '"' + filename + '"']
             if args:
                 p_args.extend(programs.shell_split(args))
-            executable = programs.find_program('python')
+            executable = programs.find_program('kernprof')
             executable += ' ' + ' '.join(p_args)
             executable = executable.replace(os.sep, '/')
             self.process.start(executable)
         else:
-            p_args = ['-m', 'memory_profiler', '-o', self.DATAPATH, filename]
+            p_args = ['-lvb', '-o', self.DATAPATH, filename]
             if args:
                 p_args.extend(programs.shell_split(args))
-            executable = 'python'
+            executable = 'kernprof'
             self.process.start(executable, p_args)
 
         running = self.process.waitForStarted()
@@ -334,15 +333,16 @@ class MemoryProfilerWidget(QWidget):
         self.datelabel.setText(date_text)
 
 
-class MemoryProfilerDataTree(QTreeWidget):
+class LineProfilerDataTree(QTreeWidget):
     """
     Convenience tree widget (with built-in model)
-    to store and view memory profiler data.
+    to store and view line profiler data.
     """
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
         self.header_list = [
-            _('Line #'), _('Memory usage'), _('Increment'), _('Line contents')]
+            _('Line #'), _('Hits'), _('Time (ms)'), _('Per hit (ms)'),
+            _('% Time'), _('Line contents')]
         self.stats = None      # To be filled by self.load_data()
         self.max_time = 0      # To be filled by self.load_data()
         self.header().setDefaultAlignment(Qt.AlignCenter)
@@ -353,7 +353,7 @@ class MemoryProfilerDataTree(QTreeWidget):
                      self.item_activated)
 
     def show_tree(self):
-        """Populate the tree with memory profiler data and display it."""
+        """Populate the tree with line profiler data and display it."""
         self.clear()  # Clear before re-populating
         self.setItemsExpandable(True)
         self.setSortingEnabled(False)
@@ -366,14 +366,7 @@ class MemoryProfilerDataTree(QTreeWidget):
         self.sortItems(COL_POS, Qt.AscendingOrder)
 
     def load_data(self, profdatafile):
-        """Load memory profiler data saved by memory_profiler module"""
-        
-        # NOTE: Description of lstats below is for line_profiler. Here we
-        # create a mock Lstats class to emulate this behaviour, so we can reuse
-        # the spyder_line_profiler code. The structure of lstats is the same,
-        # but the entries (line_no, hits, total_time) are replaced
-        # by (line_no, usage, increment)
-        
+        """Load line profiler data saved by kernprof module"""
         # lstats has the following layout :
         # lstats.timings =
         #     {(filename1, line_no1, function_name1):
@@ -384,56 +377,9 @@ class MemoryProfilerDataTree(QTreeWidget):
         #          (line_no2, hits2, total_time2),
         #          (line_no3, hits3, total_time3)]}
         # lstats.unit = time_factor
-            
-        with open(profdatafile, 'r') as fid:
-            reslines = fid.readlines()
+        with open(profdatafile, 'rb') as fid:
+            lstats = pickle.load(fid)
 
-        # get the results into an "lstats"-like format so that the code below 
-        # (originally for line_profiler) can be used without much modification
-        class Lstats(object):
-            def __init__(self):
-                self.timings = {}
-        lstats = Lstats()
-        # find lines in results where new function starts
-        newFuncAtLine = []
-        for i, line in enumerate(reslines):
-            if line.startswith('Filename: '):
-                newFuncAtLine.append(i)
-        # parse results from each function
-        for i in newFuncAtLine:
-            # filename
-            filename = reslines[i].rstrip()[10:]
-            # line number
-            l = reslines[i+4].lstrip()
-            line_no = int(l[:l.find(' ')])
-            # function name
-            l = reslines[i+5]
-            function_name = l[l.find('def')+4:l.find('(')]
-            # initiate structure
-            lstats.timings[(filename, line_no, function_name)] = []
-            # parse lines, add code lines and memory usage of current function
-            for l in reslines[i+4:]:
-                l = l.lstrip()
-                # break on empty line (we have ended the current function results)
-                if l == '':
-                    break
-                # split string (discard empty strings using filter)
-                stuff = filter(None, l.split(' '))
-                # get line number, mem usage, and mem increment
-                lineno = int(stuff[0])
-                if len(stuff) >= 5 and stuff[2] == 'MiB':
-                    usage = float(stuff[1])
-                else:
-                    usage = None
-                if len(stuff) >= 5 and stuff[4] == 'MiB':
-                    increment = float(stuff[3])
-                else:
-                    increment = None
-                # append 
-                lstats.timings[(filename, line_no, function_name)].append(
-                    (lineno, usage, increment))
-            
-            
         # First pass to group by filename
         self.stats = dict()
         linecache.checkcache()
@@ -448,48 +394,72 @@ class MemoryProfilerDataTree(QTreeWidget):
 
             # Loop on each line of code
             func_stats = []
-            func_initial_usage = stats[0][1]
-            func_peak_usage = 0.0
+            func_total_time = 0.0
             next_stat_line = 0
             for line_no, code_line in enumerate(block_lines):
-                line_no += start_line_no + 1 # Lines start at 1
+                line_no += start_line_no + 1  # Lines start at 1
                 code_line = code_line.rstrip('\n')
                 if (next_stat_line >= len(stats)
                         or line_no != stats[next_stat_line][0]):
                     # Line didn't run
-                    usage, increment = None, None
+                    hits, line_total_time, time_per_hit = None, None, None
                 else:
-                    # Compute line stats
-                    usage, increment = stats[next_stat_line][1:]
-                    if usage is not None:
-                        func_peak_usage = max(func_peak_usage, usage-func_initial_usage)
+                    # Compute line times
+                    hits, line_total_time = stats[next_stat_line][1:]
+                    line_total_time *= lstats.unit
+                    time_per_hit = line_total_time / hits
+                    func_total_time += line_total_time
                     next_stat_line += 1
                 func_stats.append(
-                    [line_no, code_line, usage, increment])
+                    [line_no, code_line, line_total_time, time_per_hit,
+                     hits])
+
+            # Compute percent time
+            for line in func_stats:
+                line_total_time = line[2]
+                if line_total_time is None:
+                    line.append(None)
+                else:
+                    line.append(line_total_time / func_total_time)
 
             # Fill dict
-            self.stats[func_info] = [func_stats, func_peak_usage]
-            
-    def fill_item(self, item, filename, line_no, code, usage, increment):
+            self.stats[func_info] = [func_stats, func_total_time]
+
+    def fill_item(self, item, filename, line_no, code, time, percent, perhit,
+                  hits):
         item.setData(COL_POS, Qt.UserRole, (osp.normpath(filename), line_no))
 
         item.setData(COL_NO, Qt.DisplayRole, line_no)
 
         item.setData(COL_LINE, Qt.DisplayRole, code)
-        
-        if usage is None:
-            usage = ''
-        else:
-            usage = '%.3f MiB' % (usage)
-        item.setData(COL_USAGE, Qt.DisplayRole, usage)
-        item.setTextAlignment(COL_USAGE, Qt.AlignCenter)
 
-        if increment is None:
-            increment = ''
+        if percent is None:
+            percent = ''
         else:
-            increment = '%.3f MiB' % (increment)
-        item.setData(COL_INCREMENT, Qt.DisplayRole, increment)
-        item.setTextAlignment(COL_INCREMENT, Qt.AlignCenter)
+            percent = '%.1f' % (100 * percent)
+        item.setData(COL_PERCENT, Qt.DisplayRole, percent)
+        item.setTextAlignment(COL_PERCENT, Qt.AlignCenter)
+
+        if time is None:
+            time = ''
+        else:
+            time = '%.3f' % (time * 1e3)
+        item.setData(COL_TIME, Qt.DisplayRole, time)
+        item.setTextAlignment(COL_TIME, Qt.AlignCenter)
+
+        if perhit is None:
+            perhit = ''
+        else:
+            perhit = '%.3f' % (perhit * 1e3)
+        item.setData(COL_PERHIT, Qt.DisplayRole, perhit)
+        item.setTextAlignment(COL_PERHIT, Qt.AlignCenter)
+
+        if hits is None:
+            hits = ''
+        else:
+            hits = '%d' % hits
+        item.setData(COL_HITS, Qt.DisplayRole, hits)
+        item.setTextAlignment(COL_HITS, Qt.AlignCenter)
 
     def populate_tree(self):
         """Create each item (and associated data) in the tree"""
@@ -516,24 +486,24 @@ class MemoryProfilerDataTree(QTreeWidget):
         for func_info, func_data in self.stats.items():
             # Function name and position
             filename, start_line_no, func_name = func_info
-            func_stats, func_peak_usage = func_data
+            func_stats, func_total_time = func_data
             func_item = QTreeWidgetItem(self)
             func_item.setData(
                 0, Qt.DisplayRole,
-                _('{func_name} (peak {peak_usage:.3f} MiB) in file "{filename}", '
+                _('{func_name} ({time_ms:.3f}ms) in file "{filename}", '
                   'line {line_no}').format(
                     filename=filename,
                     line_no=start_line_no,
                     func_name=func_name,
-                    peak_usage=func_peak_usage))
+                    time_ms=func_total_time * 1e3))
             func_item.setFirstColumnSpanned(True)
             func_item.setData(COL_POS, Qt.UserRole,
                               (osp.normpath(filename), start_line_no))
 
             # For sorting by time
-            func_item.setData(COL_USAGE, Qt.DisplayRole, func_peak_usage)
-            func_item.setData(COL_INCREMENT, Qt.DisplayRole,
-                              func_peak_usage)
+            func_item.setData(COL_TIME, Qt.DisplayRole, func_total_time * 1e3)
+            func_item.setData(COL_PERCENT, Qt.DisplayRole,
+                              func_total_time * 1e3)
 
             if self.parent().use_colors:
                 # Choose deteministic unique color for the function
@@ -544,24 +514,18 @@ class MemoryProfilerDataTree(QTreeWidget):
                 # Red color only
                 func_color = QColor.fromRgb(255, 0, 0)
 
-            # get max increment
-            max_increment = 0
-            for line_info in func_stats:
-                (line_no, code_line, usage, increment) = line_info
-                if increment is not None:
-                    max_increment = max(max_increment, increment)
-
             # Lines of code
             for line_info in func_stats:
                 line_item = QTreeWidgetItem(func_item)
-                (line_no, code_line, usage, increment) = line_info
+                (line_no, code_line, line_total_time, time_per_hit,
+                 hits, percent) = line_info
                 self.fill_item(
                     line_item, filename, line_no, code_line,
-                    usage, increment)
+                    line_total_time, percent, time_per_hit, hits)
 
                 # Color background
-                if increment is not None:
-                    alpha = increment / max_increment if max_increment != 0 else 0
+                if line_total_time is not None:
+                    alpha = percent
                     color = QColor(func_color)
                     color.setAlphaF(alpha)  # Returns None
                     color = QBrush(color)
@@ -585,7 +549,7 @@ def test():
     """Run widget test"""
     from spyderlib.utils.qthelpers import qapplication
     app = qapplication()
-    widget = MemoryProfilerWidget(None)
+    widget = LineProfilerWidget(None)
     widget.resize(800, 600)
     widget.show()
     widget.analyze(osp.normpath(osp.join(osp.dirname(__file__), os.pardir,
@@ -595,3 +559,4 @@ def test():
 
 if __name__ == '__main__':
     test()
+ 
