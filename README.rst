@@ -8,6 +8,13 @@ This is a plugin to run the python `line profiler <https://github.com/rkern/line
 
 The code is an adaptation of the profiler plugin integrated in `spyder <https://code.google.com/p/spyderlib/>`_.
 
+Important
+---------
+**Spyder** plugin support will be released with version 3.0 (Still in Beta).
+
+If you want to try out this plugin you need to use the latest development version o **Spyder**  (**master** branch).
+
+
 Install instructions
 --------------------
 
