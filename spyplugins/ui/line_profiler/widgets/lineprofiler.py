@@ -23,11 +23,11 @@ import time
 import sys
 
 # Third party imports
-from spyderlib.qt.compat import getopenfilename
-from spyderlib.qt.QtCore import QByteArray, QProcess, Qt, QTextCodec, SIGNAL
-from spyderlib.qt.QtGui import (QHBoxLayout, QWidget, QMessageBox, QVBoxLayout,
-                                QLabel, QTreeWidget, QTreeWidgetItem,
-                                QApplication, QBrush, QColor, QFont)
+from qtpy.compat import getopenfilename
+from qtpy.QtCore import QByteArray, QProcess, Qt, QTextCodec
+from qtpy.QtGui import QApplication, QBrush, QColor, QFont
+from qtpy.QtWidgets import (QHBoxLayout, QWidget, QMessageBox, QVBoxLayout,
+                            QLabel, QTreeWidget, QTreeWidgetItem)
 
 # Local imports
 from spyderlib.config.base import get_conf_path, get_translation
@@ -35,7 +35,7 @@ from spyderlib.utils import programs
 from spyderlib.utils.qthelpers import create_toolbutton, get_icon
 from spyderlib.widgets.comboboxes import PythonModulesComboBox
 from spyderlib.widgets.externalshell import baseshell
-from spyderlib.widgets.texteditor import TextEditor
+from spyderlib.widgets.variableexplorer.texteditor import TextEditor
 
 try:
     from spyderlib.py3compat import to_text_string, getcwd, pickle
@@ -104,9 +104,8 @@ class LineProfilerWidget(QWidget):
             text=_("Stop"),
             tip=_("Stop current profiling"),
             text_beside_icon=True)
-        self.connect(self.filecombo, SIGNAL('valid(bool)'),
-                     self.start_button.setEnabled)
-        #self.connect(self.filecombo, SIGNAL('valid(bool)'), self.show_data)
+        self.filecombo.valid.connect(self.start_button.setEnabled)
+        #self.filecombo.valid.connect(self.show_data)
         # FIXME: The combobox emits this signal on almost any event
         #        triggering show_data() too early, too often.
 
@@ -176,6 +175,7 @@ class LineProfilerWidget(QWidget):
 
     def analyze(self, filename, wdir=None, args=None, pythonpath=None,
                 use_colors=True):
+        print("1")
         self.use_colors = use_colors
         if not is_lineprofiler_installed():
             return
@@ -188,17 +188,18 @@ class LineProfilerWidget(QWidget):
         else:
             self.filecombo.setCurrentIndex(self.filecombo.findText(filename))
         self.filecombo.selected()
+        print("2")
         if self.filecombo.is_valid():
             if wdir is None:
                 wdir = osp.dirname(filename)
             self.start(wdir, args, pythonpath)
 
     def select_file(self):
-        self.emit(SIGNAL('redirect_stdio(bool)'), False)
+        self.redirect_stdio.emit(False)
         filename, _selfilter = getopenfilename(
             self, _("Select Python script"), getcwd(),
             _("Python scripts")+" (*.py ; *.pyw)")
-        self.emit(SIGNAL('redirect_stdio(bool)'), False)
+        self.redirect_stdio.emit(False)
         if filename:
             self.analyze(filename)
 
@@ -213,6 +214,7 @@ class LineProfilerWidget(QWidget):
                        readonly=True, size=(700, 500)).exec_()
 
     def start(self, wdir=None, args=None, pythonpath=None):
+        print("3")
         filename = to_text_string(self.filecombo.currentText())
         if wdir is None:
             wdir = self._last_wdir
@@ -233,14 +235,11 @@ class LineProfilerWidget(QWidget):
         self.process = QProcess(self)
         self.process.setProcessChannelMode(QProcess.SeparateChannels)
         self.process.setWorkingDirectory(wdir)
-        self.connect(self.process, SIGNAL("readyReadStandardOutput()"),
-                     self.read_output)
-        self.connect(self.process, SIGNAL("readyReadStandardError()"),
-                     lambda: self.read_output(error=True))
-        self.connect(self.process,
-                     SIGNAL("finished(int,QProcess::ExitStatus)"),
-                     self.finished)
-        self.connect(self.stop_button, SIGNAL("clicked()"), self.process.kill)
+        self.process.readyReadStandardOutput.connect(self.read_output)
+        self.process.readyReadStandardError.connect(
+            lambda: self.read_output(error=True))
+        self.process.finished.connect(self.finished)
+        self.stop_button.clicked.connect(self.process.kill)
 
         if pythonpath is not None:
             env = [to_text_string(_pth)
@@ -349,8 +348,7 @@ class LineProfilerDataTree(QTreeWidget):
         self.setColumnCount(len(self.header_list))
         self.setHeaderLabels(self.header_list)
         self.clear()
-        self.connect(self, SIGNAL('itemActivated(QTreeWidgetItem*,int)'),
-                     self.item_activated)
+        self.itemActivated.connect(self.item_activated)
 
     def show_tree(self):
         """Populate the tree with line profiler data and display it."""
@@ -541,8 +539,7 @@ class LineProfilerDataTree(QTreeWidget):
 
     def item_activated(self, item):
         filename, line_no = item.data(COL_POS, Qt.UserRole)
-        self.parent().emit(SIGNAL("edit_goto(QString,int,QString)"),
-                           filename, line_no, '')
+        self.parent().edit_goto.emit(filename, line_no, '')
 
 
 def test():

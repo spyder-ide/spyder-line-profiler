@@ -9,8 +9,8 @@
 """Line profiler Plugin."""
 
 # Third party imports
-from spyderlib.qt.QtCore import Qt, SIGNAL
-from spyderlib.qt.QtGui import QGroupBox, QLabel, QVBoxLayout
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QGroupBox, QLabel, QVBoxLayout
 
 from spyderlib.config.base import get_translation
 from spyderlib.plugins import SpyderPluginMixin, PluginConfigPage, runconfig
@@ -102,7 +102,7 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
 
     def on_first_registration(self):
         """Action to be performed on first plugin registration."""
-        self.main.tabify_plugins(self.main.inspector, self)
+        self.main.tabify_plugins(self.main.help, self)
         self.dockwidget.hide()
 
     def register_plugin(self):
