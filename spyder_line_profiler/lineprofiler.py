@@ -22,7 +22,7 @@ from .data import images
 from .widgets.lineprofiler import LineProfilerWidget, is_lineprofiler_installed
 
 
-_ = get_translation("line_profiler", dirname="spyplugins.ui.line_profiler")
+_ = get_translation("line_profiler", dirname="spyder_line_profiler")
 
 
 class LineProfilerConfigPage(PluginConfigPage):

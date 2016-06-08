@@ -11,7 +11,7 @@ import os.path as osp
 
 def get_version():
     """ """
-    with open("spyplugins/ui/line_profiler/__init__.py") as f:
+    with open("spyder_line_profiler/__init__.py") as f:
         lines = f.read().splitlines()
         for l in lines:
             if "__version__" in l:
@@ -50,7 +50,6 @@ setup(
     version=get_version(),
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     package_data={LIBNAME: get_package_data(LIBNAME, EXTLIST)},
-    namespace_packages=['spyplugins', 'spyplugins.ui'],
     keywords=["Qt PyQt4 PyQt5 PySide spyder plugins spyplugins line_profiler profiler"],
     install_requires=REQUIREMENTS,
     url='https://github.com/spyder-ide/spyder.line_profiler',
@@ -60,7 +59,7 @@ setup(
     maintainer='The Spyder Development Team',
     maintainer_email='',
     description='This is a plugin to run the python line profiler from within'
-                ' the Spyder editor.',
+                ' the Spyder IDE.',
     long_description=get_readme(),
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -74,4 +73,5 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Topic :: Software Development :: Widget Sets'])

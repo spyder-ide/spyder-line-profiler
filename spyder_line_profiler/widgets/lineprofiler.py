@@ -45,7 +45,7 @@ except ImportError:
     getcwd = os.getcwdu
     import cPickle as pickle
 
-_ = get_translation("line_profiler", dirname="spyplugins.ui.line_profiler")
+_ = get_translation("line_profiler", dirname="spyder_line_profiler")
 locale_codec = QTextCodec.codecForLocale()
 
 
