@@ -24,7 +24,8 @@ import sys
 
 # Third party imports
 from qtpy.compat import getopenfilename
-from qtpy.QtCore import QByteArray, QProcess, Qt, QTextCodec
+from qtpy.QtCore import (QByteArray, QProcess, Qt, QTextCodec,
+                         QProcessEnvironment, Signal)
 from qtpy.QtGui import QApplication, QBrush, QColor, QFont
 from qtpy.QtWidgets import (QHBoxLayout, QWidget, QMessageBox, QVBoxLayout,
                             QLabel, QTreeWidget, QTreeWidgetItem)
@@ -76,6 +77,7 @@ class LineProfilerWidget(QWidget):
     """
     DATAPATH = get_conf_path('lineprofiler.results')
     VERSION = '0.0.1'
+    redirect_stdio = Signal(bool)
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -175,7 +177,6 @@ class LineProfilerWidget(QWidget):
 
     def analyze(self, filename, wdir=None, args=None, pythonpath=None,
                 use_colors=True):
-        print("1")
         self.use_colors = use_colors
         if not is_lineprofiler_installed():
             return
@@ -188,7 +189,6 @@ class LineProfilerWidget(QWidget):
         else:
             self.filecombo.setCurrentIndex(self.filecombo.findText(filename))
         self.filecombo.selected()
-        print("2")
         if self.filecombo.is_valid():
             if wdir is None:
                 wdir = osp.dirname(filename)
@@ -214,7 +214,6 @@ class LineProfilerWidget(QWidget):
                        readonly=True, size=(700, 500)).exec_()
 
     def start(self, wdir=None, args=None, pythonpath=None):
-        print("3")
         filename = to_text_string(self.filecombo.currentText())
         if wdir is None:
             wdir = self._last_wdir
@@ -245,7 +244,11 @@ class LineProfilerWidget(QWidget):
             env = [to_text_string(_pth)
                    for _pth in self.process.systemEnvironment()]
             baseshell.add_pathlist_to_PYTHONPATH(env, pythonpath)
-            self.process.setEnvironment(env)
+            processEnvironment = QProcessEnvironment()
+            for envItem in env:
+                envName, separator, envValue = envItem.partition('=')
+                processEnvironment.insert(envName, envValue)
+            self.process.setProcessEnvironment(processEnvironment)
 
         self.output = ''
         self.error_output = ''
@@ -359,7 +362,8 @@ class LineProfilerDataTree(QTreeWidget):
         self.expandAll()
         for col in range(self.columnCount()-1):
             self.resizeColumnToContents(col)
-        self.collapseAll()
+        if self.topLevelItemCount() > 1:
+            self.collapseAll()
         self.setSortingEnabled(True)
         self.sortItems(COL_POS, Qt.AscendingOrder)
 

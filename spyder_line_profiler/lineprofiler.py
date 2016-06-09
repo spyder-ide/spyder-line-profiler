@@ -9,7 +9,7 @@
 """Line profiler Plugin."""
 
 # Third party imports
-from qtpy.QtCore import Qt
+from qtpy.QtCore import Qt, Signal
 from qtpy.QtWidgets import QGroupBox, QLabel, QVBoxLayout
 
 from spyderlib.config.base import get_translation
@@ -71,6 +71,7 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
     """
     CONF_SECTION = 'lineprofiler'
     CONFIGWIDGET_CLASS = LineProfilerConfigPage
+    edit_goto = Signal(str, int, str)
 
     def __init__(self, parent=None):
         LineProfilerWidget.__init__(self, parent=parent)
@@ -107,10 +108,8 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
 
     def register_plugin(self):
         """Register plugin in Spyder's main window."""
-#        self.connect(self, SIGNAL("edit_goto(QString,int,QString)"),
-#                     self.main.editor.load)
-#        self.connect(self, SIGNAL('redirect_stdio(bool)'),
-#                     self.main.redirect_internalshell_stdio)
+        self.edit_goto.connect(self.main.editor.load)
+        self.redirect_stdio.connect(self.main.redirect_internalshell_stdio)
         self.main.add_dockwidget(self)
 
         lineprofiler_act = create_action(self, _("Profile line by line"),

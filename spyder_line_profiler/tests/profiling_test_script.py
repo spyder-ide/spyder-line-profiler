@@ -16,11 +16,11 @@ import subdir.profiling_test_script2 as script2
 @profile
 def fact(n):
     result = 1
-    for i in xrange(2, n // 4):
+    for i in range(2, n // 4):
         result *= i
     result = 1
     # This is a comment
-    for i in xrange(2, n // 16):
+    for i in range(2, n // 16):
         result *= i
     result = 1
 
@@ -28,7 +28,7 @@ def fact(n):
         # This won't be run
         raise RuntimeError("What are you doing here ???")
 
-    for i in xrange(2, n + 1):
+    for i in range(2, n + 1):
         result *= i
     return result
     # This is after the end of the function.
@@ -42,7 +42,7 @@ def fact(n):
 def sum_(n):
     result = 0
 
-    for i in xrange(1, n + 1):
+    for i in range(1, n + 1):
         result += i
     return result
 
