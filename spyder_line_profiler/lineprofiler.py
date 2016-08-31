@@ -12,8 +12,8 @@
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtWidgets import QGroupBox, QLabel, QVBoxLayout
 
-from spyder.config.main import CONF
 from spyder.config.base import get_translation
+from spyder.config.gui import fixed_shortcut
 from spyder.plugins import SpyderPluginMixin, PluginConfigPage, runconfig
 from spyder.utils import icon_manager as ima
 from spyder.utils.qthelpers import create_action
@@ -117,11 +117,8 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
                                          icon=self.get_plugin_icon(),
                                          triggered=self.run_lineprofiler)
         lineprofiler_act.setEnabled(is_lineprofiler_installed())
-        CONF.set(section="shortcuts",
-                 option="Line Profiler/Run line profiler",
-                 value="Shift+F10")
-        self.register_shortcut(lineprofiler_act, context="Line Profiler",
-                               name="Run line profiler", add_sc_to_tip=True)
+        fixed_shortcut("Shift+F10", self.main,
+                       self.run_lineprofiler)
 
         self.main.run_menu_actions += [lineprofiler_act]
         self.main.editor.pythonfile_dependent_actions += [lineprofiler_act]
