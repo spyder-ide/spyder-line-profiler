@@ -4,7 +4,7 @@
 # based on p_profiler.py by Santiago Jaramillo
 #
 # Licensed under the terms of the MIT License
-# (see spyderlib/__init__.py for details)
+# (see spyder/__init__.py for details)
 
 """Line profiler Plugin."""
 
@@ -12,11 +12,11 @@
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtWidgets import QGroupBox, QLabel, QVBoxLayout
 
-from spyderlib.config.main import CONF
-from spyderlib.config.base import get_translation
-from spyderlib.plugins import SpyderPluginMixin, PluginConfigPage, runconfig
-from spyderlib.utils import icon_manager as ima
-from spyderlib.utils.qthelpers import create_action
+from spyder.config.main import CONF
+from spyder.config.base import get_translation
+from spyder.plugins import SpyderPluginMixin, PluginConfigPage, runconfig
+from spyder.utils import icon_manager as ima
+from spyder.utils.qthelpers import create_action
 
 # Local imports
 from .data import images

@@ -4,7 +4,7 @@
 # based on pylintgui.py by Pierre Raybaut
 #
 # Licensed under the terms of the MIT License
-# (see spyderlib/__init__.py for details)
+# (see spyder/__init__.py for details)
 
 """
 Line Profiler widget
@@ -31,15 +31,15 @@ from qtpy.QtWidgets import (QHBoxLayout, QWidget, QMessageBox, QVBoxLayout,
                             QLabel, QTreeWidget, QTreeWidgetItem)
 
 # Local imports
-from spyderlib.config.base import get_conf_path, get_translation
-from spyderlib.utils import programs
-from spyderlib.utils.qthelpers import create_toolbutton, get_icon
-from spyderlib.widgets.comboboxes import PythonModulesComboBox
-from spyderlib.widgets.externalshell import baseshell
-from spyderlib.widgets.variableexplorer.texteditor import TextEditor
+from spyder.config.base import get_conf_path, get_translation
+from spyder.utils import programs
+from spyder.utils.qthelpers import create_toolbutton, get_icon
+from spyder.widgets.comboboxes import PythonModulesComboBox
+from spyder.widgets.externalshell import baseshell
+from spyder.widgets.variableexplorer.texteditor import TextEditor
 
 try:
-    from spyderlib.py3compat import to_text_string, getcwd, pickle
+    from spyder.py3compat import to_text_string, getcwd, pickle
 except ImportError:
     # python2
     to_text_string = unicode
@@ -548,7 +548,7 @@ class LineProfilerDataTree(QTreeWidget):
 
 def test():
     """Run widget test"""
-    from spyderlib.utils.qthelpers import qapplication
+    from spyder.utils.qthelpers import qapplication
     app = qapplication()
     widget = LineProfilerWidget(None)
     widget.resize(800, 600)
