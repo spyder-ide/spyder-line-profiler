@@ -35,7 +35,7 @@ from spyder.config.base import get_conf_path, get_translation
 from spyder.utils import programs
 from spyder.utils.qthelpers import create_toolbutton, get_icon
 from spyder.widgets.comboboxes import PythonModulesComboBox
-from spyder.widgets.externalshell import baseshell
+from spyder.utils.misc import add_pathlist_to_PYTHONPATH
 from spyder.widgets.variableexplorer.texteditor import TextEditor
 
 try:
@@ -46,7 +46,14 @@ except ImportError:
     getcwd = os.getcwdu
     import cPickle as pickle
 
-_ = get_translation("line_profiler", dirname="spyder_line_profiler")
+# This is needed for testing this module as a stand alone script
+try:
+    _ = get_translation("line_profiler", dirname="spyder_line_profiler")
+except KeyError as error:
+    import gettext
+    _ = gettext.gettext
+
+
 locale_codec = QTextCodec.codecForLocale()
 
 
@@ -243,7 +250,7 @@ class LineProfilerWidget(QWidget):
         if pythonpath is not None:
             env = [to_text_string(_pth)
                    for _pth in self.process.systemEnvironment()]
-            baseshell.add_pathlist_to_PYTHONPATH(env, pythonpath)
+            add_pathlist_to_PYTHONPATH(env, pythonpath)
             processEnvironment = QProcessEnvironment()
             for envItem in env:
                 envName, separator, envValue = envItem.partition('=')
@@ -262,7 +269,7 @@ class LineProfilerWidget(QWidget):
                       '"' + filename + '"']
             if args:
                 p_args.extend(programs.shell_split(args))
-            executable = programs.find_program('kernprof')
+            executable = '"' + programs.find_program('kernprof') + '"'
             executable += ' ' + ' '.join(p_args)
             executable = executable.replace(os.sep, '/')
             self.process.start(executable)
