@@ -68,8 +68,8 @@ def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
     assert top.child(4).data(1, Qt.DisplayRole) == '101'
     assert top.child(5).data(1, Qt.DisplayRole) == '100'
 
-    assert float(top.child(2).data(2, Qt.DisplayRole)) >= 1000  # time (ms)
-    assert float(top.child(2).data(2, Qt.DisplayRole)) <= 1100
+    assert float(top.child(2).data(2, Qt.DisplayRole)) >= 900  # time (ms)
+    assert float(top.child(2).data(2, Qt.DisplayRole)) <= 1200
     assert float(top.child(3).data(2, Qt.DisplayRole)) <= 100
     assert float(top.child(4).data(2, Qt.DisplayRole)) <= 100
     assert float(top.child(5).data(2, Qt.DisplayRole)) <= 100
