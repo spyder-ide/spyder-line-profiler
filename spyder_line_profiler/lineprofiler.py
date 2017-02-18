@@ -122,10 +122,9 @@ class LineProfiler(SpyderPluginWidget):
 
         lineprofiler_act = create_action(self, _("Profile line by line"),
                                          icon=self.get_plugin_icon(),
+                                         shortcut="Shift+F10",
                                          triggered=self.run_lineprofiler)
         lineprofiler_act.setEnabled(is_lineprofiler_installed())
-        fixed_shortcut("Shift+F10", self.main,
-                       self.run_lineprofiler)
 
         self.main.run_menu_actions += [lineprofiler_act]
         self.main.editor.pythonfile_dependent_actions += [lineprofiler_act]
