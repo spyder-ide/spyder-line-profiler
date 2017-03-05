@@ -14,7 +14,7 @@ from qtpy.QtWidgets import QGroupBox, QLabel, QVBoxLayout
 
 from spyder.config.base import get_translation
 from spyder.config.gui import fixed_shortcut
-from spyder.plugins import SpyderPluginMixin, runconfig
+from spyder.plugins import SpyderPluginWidget, runconfig
 from spyder.plugins.configdialog import PluginConfigPage
 from spyder.utils import icon_manager as ima
 from spyder.utils.qthelpers import create_action
@@ -67,7 +67,7 @@ class LineProfilerConfigPage(PluginConfigPage):
         self.setLayout(vlayout)
 
 
-class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
+class LineProfiler(SpyderPluginWidget):
     """
     Line profiler.
     """
@@ -76,8 +76,14 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
     edit_goto = Signal(str, int, str)
 
     def __init__(self, parent=None):
-        LineProfilerWidget.__init__(self, parent=parent)
-        SpyderPluginMixin.__init__(self, parent)
+        SpyderPluginWidget.__init__(self, parent)
+        self.main = parent  # Spyder 3 compatibility
+
+        # Create widget and add to dockwindow
+        self.widget = LineProfilerWidget(self.main)
+        layout = QVBoxLayout()
+        layout.addWidget(self.widget)
+        self.setLayout(layout)
 
         # Initialize plugin
         self.initialize_plugin()
@@ -97,7 +103,7 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
         Return the widget to give focus to when this plugin's dockwidget is
         raised on top-level.
         """
-        return self.datatree
+        return self.widget.datatree
 
     def get_plugin_actions(self):
         """Return a list of actions related to plugin."""
@@ -111,15 +117,14 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
     def register_plugin(self):
         """Register plugin in Spyder's main window."""
         self.edit_goto.connect(self.main.editor.load)
-        self.redirect_stdio.connect(self.main.redirect_internalshell_stdio)
+        self.widget.redirect_stdio.connect(self.main.redirect_internalshell_stdio)
         self.main.add_dockwidget(self)
 
         lineprofiler_act = create_action(self, _("Profile line by line"),
                                          icon=self.get_plugin_icon(),
+                                         shortcut="Shift+F10",
                                          triggered=self.run_lineprofiler)
         lineprofiler_act.setEnabled(is_lineprofiler_installed())
-        fixed_shortcut("Shift+F10", self.main,
-                       self.run_lineprofiler)
 
         self.main.run_menu_actions += [lineprofiler_act]
         self.main.editor.pythonfile_dependent_actions += [lineprofiler_act]
@@ -156,6 +161,6 @@ class LineProfiler(LineProfilerWidget, SpyderPluginMixin):
             if runconf.args_enabled:
                 args = runconf.args
 
-        LineProfilerWidget.analyze(
-            self, filename, wdir=wdir, args=args, pythonpath=pythonpath,
+        self.widget.analyze(
+            filename, wdir=wdir, args=args, pythonpath=pythonpath,
             use_colors=self.get_option('use_colors', True))
