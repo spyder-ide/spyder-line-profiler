@@ -1,0 +1,2 @@
+include CHANGELOG.rst LICENSE.txt README.rst
+recursive-include spyder_line_profiler *
