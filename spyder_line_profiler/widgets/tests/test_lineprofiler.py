@@ -50,8 +50,8 @@ def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
 
     widget = LineProfilerWidget(None)
     qtbot.addWidget(widget)
-    widget.analyze(testfilename)
-    qtbot.wait(2000) # wait for tests to run
+    with qtbot.waitSignal(widget.sig_finished, timeout=10000, raising=True):
+        widget.analyze(testfilename)
 
     MockQMessageBox.assert_not_called()
     dt = widget.datatree
