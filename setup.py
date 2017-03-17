@@ -41,7 +41,7 @@ def get_package_data(name, extlist):
 
 
 # Requirements
-REQUIREMENTS = ['line_profiler']
+REQUIREMENTS = ['line_profiler', 'spyder>=3']
 EXTLIST = ['.jpg', '.png', '.json', '.mo', '.ini']
 LIBNAME = 'spyder_line_profiler'
 
@@ -55,11 +55,8 @@ setup(
     install_requires=REQUIREMENTS,
     url='https://github.com/spyder-ide/spyder-line-profiler',
     license='MIT',
-    author='Joseph Martinot-Lagarde',
-    author_email='',
-    maintainer='The Spyder Development Team',
-    maintainer_email='',
-    description='This is a plugin to run the python line profiler from within'
+    author="Spyder Project Contributors",
+    description='Plugin to run the python line profiler from within'
                 ' the Spyder IDE.',
     long_description=get_readme(),
     classifiers=[
@@ -72,7 +69,7 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
-        'Topic :: Software Development :: Widget Sets'])
+        'Programming Language :: Python :: 3.6',
+        'Topic :: Software Development',
+        'Topic :: Text Editors :: Integrated Development Environments (IDE)'])
