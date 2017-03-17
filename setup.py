@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Setup script for spyder.line_profiler
+Setup script for spyder_line_profiler
 """
 
 from setuptools import setup, find_packages
@@ -10,8 +10,9 @@ import os.path as osp
 
 
 def get_version():
-    """ """
-    with open("spyder_line_profiler/__init__.py") as f:
+    """Get version from source file"""
+    import codecs
+    with codecs.open("spyder_unittest/__init__.py", encoding="utf-8") as f:
         lines = f.read().splitlines()
         for l in lines:
             if "__version__" in l:
