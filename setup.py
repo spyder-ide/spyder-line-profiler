@@ -1,5 +1,9 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2013 Spyder Project Contributors
+# Licensed under the terms of the MIT License
+# (see LICENSE.txt for details)
+
 """
 Setup script for spyder_line_profiler
 """

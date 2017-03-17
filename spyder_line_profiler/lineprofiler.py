@@ -1,10 +1,8 @@
-# -*- coding:utf-8 -*-
+# -*- coding: utf-8 -*-
 #
-# Copyright © 2013 Joseph Martinot-Lagarde
-# based on p_profiler.py by Santiago Jaramillo
-#
+# Copyright © 2013 Spyder Project Contributors
 # Licensed under the terms of the MIT License
-# (see spyder/__init__.py for details)
+# (see LICENSE.txt for details)
 
 """Line profiler Plugin."""
 
