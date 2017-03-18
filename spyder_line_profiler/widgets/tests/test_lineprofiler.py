@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-# -----------------------------------------------------------------------------
-# Copyright (c) Spyder Project Developers
 #
+# Copyright © 2017 Spyder Project Contributors
 # Licensed under the terms of the MIT License
 # (see LICENSE.txt for details)
-# -----------------------------------------------------------------------------
+
 """Tests for lineprofiler.py."""
 
 # Standard library imports

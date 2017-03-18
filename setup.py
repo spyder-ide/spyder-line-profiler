@@ -1,7 +1,11 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2013 Spyder Project Contributors
+# Licensed under the terms of the MIT License
+# (see LICENSE.txt for details)
+
 """
-Setup script for spyder.line_profiler
+Setup script for spyder_line_profiler
 """
 
 from setuptools import setup, find_packages
@@ -10,8 +14,9 @@ import os.path as osp
 
 
 def get_version():
-    """ """
-    with open("spyder_line_profiler/__init__.py") as f:
+    """Get version from source file"""
+    import codecs
+    with codecs.open("spyder_line_profiler/__init__.py", encoding="utf-8") as f:
         lines = f.read().splitlines()
         for l in lines:
             if "__version__" in l:
@@ -40,7 +45,7 @@ def get_package_data(name, extlist):
 
 
 # Requirements
-REQUIREMENTS = ['line_profiler']
+REQUIREMENTS = ['line_profiler', 'spyder>=3']
 EXTLIST = ['.jpg', '.png', '.json', '.mo', '.ini']
 LIBNAME = 'spyder_line_profiler'
 
@@ -54,11 +59,8 @@ setup(
     install_requires=REQUIREMENTS,
     url='https://github.com/spyder-ide/spyder-line-profiler',
     license='MIT',
-    author='Joseph Martinot-Lagarde',
-    author_email='',
-    maintainer='The Spyder Development Team',
-    maintainer_email='',
-    description='This is a plugin to run the python line profiler from within'
+    author="Spyder Project Contributors",
+    description='Plugin to run the python line profiler from within'
                 ' the Spyder IDE.',
     long_description=get_readme(),
     classifiers=[
@@ -71,7 +73,7 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
-        'Topic :: Software Development :: Widget Sets'])
+        'Programming Language :: Python :: 3.6',
+        'Topic :: Software Development',
+        'Topic :: Text Editors :: Integrated Development Environments (IDE)'])
