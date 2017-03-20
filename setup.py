@@ -25,13 +25,6 @@ def get_version():
                 return version
 
 
-def get_readme():
-    """ """
-    with open('README.rst') as f:
-        readme = str(f.read())
-    return readme
-
-
 def get_package_data(name, extlist):
     """Return data files for package *name* with extensions in *extlist*"""
     flist = []
@@ -50,6 +43,11 @@ EXTLIST = ['.jpg', '.png', '.json', '.mo', '.ini']
 LIBNAME = 'spyder_line_profiler'
 
 
+LONG_DESCRIPTION = """
+This is a plugin for the Spyder IDE that integrates the Python line profiler.
+It allows you to see the time spent in every line.
+"""
+
 setup(
     name=LIBNAME,
     version=get_version(),
@@ -62,7 +60,7 @@ setup(
     author="Spyder Project Contributors",
     description='Plugin to run the python line profiler from within'
                 ' the Spyder IDE.',
-    long_description=get_readme(),
+    long_description=LONG_DESCRIPTION,
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: X11 Applications :: Qt',
