@@ -10,8 +10,11 @@
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtWidgets import QGroupBox, QLabel, QVBoxLayout
 
+# Need running QApplication before importing runconfig
+from spyder.utils.qthelpers import qapplication
+MAIN_APP = qapplication()
+
 from spyder.config.base import get_translation
-from spyder.config.gui import fixed_shortcut
 from spyder.plugins import SpyderPluginWidget, runconfig
 from spyder.plugins.configdialog import PluginConfigPage
 from spyder.utils import icon_manager as ima
