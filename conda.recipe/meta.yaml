@@ -27,8 +27,13 @@ requirements:
     - spyder >=3
 
 test:
-  imports:
-    - spyder_line_profiler
+  # On Linux, importing requires an X server
+  files:
+    - test_import.py  # [linux]
+  commands:
+    - DISPLAY=localhost:1.0 xvfb-run -a bash -c 'python test_import.py'  # [linux]
+  import:
+    - spyder_line_profiler  # [not linux]
 
 about:
   home: https://github.com/spyder-ide/spyder-line-profiler
