@@ -44,17 +44,16 @@ The code is an adaptation of the profiler plugin integrated in spyder.
 Install instructions
 --------------------
 
-See https://github.com/spyder-ide/spyder/wiki/User-plugins but in
-short, the following command installs the development version of the
-line-profiler plugin:
- 
-::
+The line-profiler plugin is available in the ``spyder-ide`` channel in
+Anaconda and in PyPI, so it can be installed with the following
+commands:
 
-  pip install git+git://github.com/spyder-ide/spyder-line-profiler.git
- 
-The plugin is not yet included in PyPI.
+* Using Anaconda: ``conda install -c spyder-ide spyder-line-profiler``
+* Using pip: ``pip install spyder-line-profiler``
 
-You need to also install `Spyder <https://github.com/spyder-ide/spyder>`_ (version 3.0 or higher) and the `line profiler <https://github.com/rkern/line_profiler>`_ .
+All dependencies will be automatically installed. You have to restart
+Spyder before you can use the plugin.
+
 
 Usage
 -----
