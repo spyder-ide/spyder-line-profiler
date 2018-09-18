@@ -105,7 +105,7 @@ class LineProfilerWidget(QWidget):
             self, icon=get_icon('run.png'),
             text=_("Profile by line"),
             tip=_("Run line profiler"),
-            triggered=self.start, text_beside_icon=True)
+            triggered=(lambda checked=False: self.start()), text_beside_icon=True)
         self.stop_button = create_toolbutton(
             self,
             icon=get_icon('terminate.png'),
