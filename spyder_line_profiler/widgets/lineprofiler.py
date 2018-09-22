@@ -91,7 +91,8 @@ class LineProfilerWidget(QWidget):
         if self.main is None:
             # Fail gracefully if not passed the spyder MainWindow
             self.main = type('main', (object,), {})
-            self.main.get_spyder_pythonpath = (lambda: None) 
+            self.main.get_spyder_pythonpath = (lambda self: None)
+            self.main = self.main()
         # Need running QApplication before importing runconfig
         from spyder.plugins import runconfig
         self.runconfig = runconfig
