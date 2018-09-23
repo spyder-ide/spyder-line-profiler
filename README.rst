@@ -16,9 +16,6 @@ Project information
 Build information
 -----------------
 
-.. image:: https://travis-ci.org/spyder-ide/spyder-line-profiler.svg?branch=master
-   :target: https://travis-ci.org/spyder-ide/spyder-line-profiler
-
 .. image:: https://ci.appveyor.com/api/projects/status/u8m20qgel4j155pn/branch/master?svg=true
    :target: https://ci.appveyor.com/project/spyder-ide/spyder-line-profiler
 
@@ -28,16 +25,11 @@ Build information
 .. image:: https://coveralls.io/repos/github/spyder-ide/spyder-line-profiler/badge.svg?branch=master
    :target: https://coveralls.io/github/spyder-ide/spyder-line-profiler?branch=master
 
-.. image:: https://www.quantifiedcode.com/api/v1/project/54e5f210a2dd4d979438fd8574650822/badge.svg
-   :target: https://www.quantifiedcode.com/api/project/54e5f210a2dd4d979438fd8574650822
-
-.. image:: https://scrutinizer-ci.com/g/spyder-ide/spyder-line-profiler/badges/quality-score.png?b=master
-   :target: https://scrutinizer-ci.com/g/spyder-ide/spyder-line-profiler/?branch=master)
-
 Description
 -----------
 
-This is a plugin to run the python `line profiler <https://github.com/rkern/line_profiler>`_ from within the python IDE `spyder <https://github.com/spyder-ide/spyder>`_.
+This is a plugin to run the python `line profiler <https://github.com/rkern/line_profiler>`_
+from within the python IDE `spyder <https://github.com/spyder-ide/spyder>`_.
 
 The code is an adaptation of the profiler plugin integrated in spyder.
 
@@ -58,9 +50,12 @@ Spyder before you can use the plugin.
 Usage
 -----
 
-Add a ``@profile`` decorator to the functions that you wish to profile then press Shift+F10 (line profiler default) to run the profiler on the current script, or go to ``Run > Profile line by line``.
+Add a ``@profile`` decorator to the functions that you wish to profile then press Shift+F10
+(line profiler default) to run the profiler on the current script, or go to
+``Run > Profile line by line``.
 
-The results will be shown in a dockwidget, grouped by function. Lines with a stronger color take more time to run.
+The results will be shown in a dockwidget, grouped by function. Lines with a stronger color
+take more time to run.
 
 
 Screenshot
