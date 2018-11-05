@@ -88,7 +88,16 @@ class LineProfiler(SpyderPluginWidget):
 
         # Initialize plugin
         self.initialize_plugin()
-
+    
+    def update_pythonpath(self):
+        """
+        Update the PYTHONPATH used when running the line_profiler.
+        This function is called whenever the Python path set in Spyder changes.
+        It synchronizes the PYTHONPATH in the line_profiler widget with the
+        PYTHONPATH in Spyder.
+        """
+        self.widget.spyder_pythonpath = self.main.get_spyder_pythonpath()
+    
     # --- SpyderPluginWidget API ----------------------------------------------
     def get_plugin_title(self):
         """Return widget title."""
@@ -117,6 +126,10 @@ class LineProfiler(SpyderPluginWidget):
 
     def register_plugin(self):
         """Register plugin in Spyder's main window."""
+        # Spyder PYTHONPATH
+        self.update_pythonpath()
+        self.main.sig_pythonpath_changed.connect(self.update_pythonpath)
+        
         self.edit_goto.connect(self.main.editor.load)
         self.widget.redirect_stdio.connect(self.main.redirect_internalshell_stdio)
         self.main.add_dockwidget(self)

@@ -87,15 +87,10 @@ class LineProfilerWidget(QWidget):
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self.main = parent
-        if self.main is None:
-            # Fail gracefully if not passed the spyder MainWindow
-            self.main = type('main', (object,), {})
-            self.main.get_spyder_pythonpath = (lambda self: None)
-            self.main = self.main()
         # Need running QApplication before importing runconfig
         from spyder.plugins import runconfig
         self.runconfig = runconfig
+        self.spyder_pythonpath = None
 
         self.setWindowTitle("Line profiler")
 
@@ -225,7 +220,7 @@ class LineProfilerWidget(QWidget):
             if wdir is None:
                 wdir = osp.dirname(filename)
             if pythonpath is None:
-                pythonpath = self.main.get_spyder_pythonpath()
+                pythonpath = self.spyder_pythonpath
             self.start(wdir, args, pythonpath)
 
     def select_file(self):
