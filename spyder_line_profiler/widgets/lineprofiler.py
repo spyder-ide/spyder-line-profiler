@@ -195,7 +195,7 @@ class LineProfilerWidget(QWidget):
         if filename is not None:
             filename = osp.abspath(to_text_string(filename))
             index = self.filecombo.findText(filename)
-            if index==-1:
+            if index == -1:
                 self.filecombo.addItem(filename)
                 self.filecombo.setCurrentIndex(self.filecombo.count()-1)
             else:
