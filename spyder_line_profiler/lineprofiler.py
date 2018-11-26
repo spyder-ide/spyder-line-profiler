@@ -15,7 +15,7 @@ from spyder.utils.qthelpers import qapplication
 MAIN_APP = qapplication()
 
 from spyder.config.base import get_translation
-from spyder.plugins import SpyderPluginWidget, runconfig
+from spyder.plugins import SpyderPluginWidget
 from spyder.plugins.configdialog import PluginConfigPage
 from spyder.utils import icon_manager as ima
 from spyder.utils.qthelpers import create_action
@@ -88,7 +88,16 @@ class LineProfiler(SpyderPluginWidget):
 
         # Initialize plugin
         self.initialize_plugin()
-
+    
+    def update_pythonpath(self):
+        """
+        Update the PYTHONPATH used when running the line_profiler.
+        This function is called whenever the Python path set in Spyder changes.
+        It synchronizes the PYTHONPATH in the line_profiler widget with the
+        PYTHONPATH in Spyder.
+        """
+        self.widget.spyder_pythonpath = self.main.get_spyder_pythonpath()
+    
     # --- SpyderPluginWidget API ----------------------------------------------
     def get_plugin_title(self):
         """Return widget title."""
@@ -117,6 +126,10 @@ class LineProfiler(SpyderPluginWidget):
 
     def register_plugin(self):
         """Register plugin in Spyder's main window."""
+        # Spyder PYTHONPATH
+        self.update_pythonpath()
+        self.main.sig_pythonpath_changed.connect(self.update_pythonpath)
+        
         self.edit_goto.connect(self.main.editor.load)
         self.widget.redirect_stdio.connect(self.main.redirect_internalshell_stdio)
         self.main.add_dockwidget(self)
@@ -153,15 +166,6 @@ class LineProfiler(SpyderPluginWidget):
             self.dockwidget.setVisible(True)
             self.dockwidget.setFocus()
             self.dockwidget.raise_()
-        pythonpath = self.main.get_spyder_pythonpath()
-        runconf = runconfig.get_run_configuration(filename)
-        wdir, args = None, None
-        if runconf is not None:
-            if runconf.wdir_enabled:
-                wdir = runconf.wdir
-            if runconf.args_enabled:
-                args = runconf.args
-
         self.widget.analyze(
-            filename, wdir=wdir, args=args, pythonpath=pythonpath,
+            filename=filename,
             use_colors=self.get_option('use_colors', True))
