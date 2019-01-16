@@ -15,6 +15,7 @@ from __future__ import with_statement
 import hashlib
 import inspect
 import linecache
+import re
 import os
 import os.path as osp
 import time
@@ -67,6 +68,18 @@ CODE_NOT_RUN_COLOR = QBrush(QColor.fromRgb(128, 128, 128, 200))
 
 WEBSITE_URL = 'http://pythonhosted.org/line_profiler/'
 
+class TreeWidgetItem(QTreeWidgetItem):
+    def __lt__(self, other):
+        column = self.treeWidget().sortColumn()
+        key1 = self.text(column)
+        key2 = other.text(column)
+        return self.natural_sort_key(key1) < self.natural_sort_key(key2)
+
+    @staticmethod
+    def natural_sort_key(key):
+        regex = '(\d*\.\d+|\d+)'
+        parts = re.split(regex, key)
+        return tuple((e if i % 2 == 0 else float(e)) for i, e in enumerate(parts))
 
 def is_lineprofiler_installed():
     """
@@ -87,10 +100,6 @@ class LineProfilerWidget(QWidget):
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        # Need running QApplication before importing runconfig
-        from spyder.plugins import runconfig
-        self.runconfig = runconfig
-        self.spyder_pythonpath = None
 
         self.setWindowTitle("Line profiler")
 
@@ -109,7 +118,7 @@ class LineProfilerWidget(QWidget):
             self, icon=get_icon('run.png'),
             text=_("Profile by line"),
             tip=_("Run line profiler"),
-            triggered=(lambda checked=False: self.analyze()), text_beside_icon=True)
+            triggered=self.start, text_beside_icon=True)
         self.stop_button = create_toolbutton(
             self,
             icon=get_icon('terminate.png'),
@@ -185,42 +194,23 @@ class LineProfilerWidget(QWidget):
         else:
             pass  # self.show_data()
 
-    def analyze(self, filename=None, wdir=None, args=None, pythonpath=None,
+    def analyze(self, filename, wdir=None, args=None, pythonpath=None,
                 use_colors=True):
         self.use_colors = use_colors
         if not is_lineprofiler_installed():
             return
         self.kill_if_running()
-        #index, _data = self.get_data(filename) # FIXME: storing data is not implemented yet
-        if filename is not None:
-            filename = osp.abspath(to_text_string(filename))
-            index = self.filecombo.findText(filename)
-            if index == -1:
-                self.filecombo.addItem(filename)
-                self.filecombo.setCurrentIndex(self.filecombo.count()-1)
-            else:
-                self.filecombo.setCurrentIndex(index)
-            self.filecombo.selected()
+        #index, _data = self.get_data(filename)
+        index = None  # FIXME: storing data is not implemented yet
+        if index is None:
+            self.filecombo.addItem(filename)
+            self.filecombo.setCurrentIndex(self.filecombo.count()-1)
+        else:
+            self.filecombo.setCurrentIndex(self.filecombo.findText(filename))
+        self.filecombo.selected()
         if self.filecombo.is_valid():
-            filename = to_text_string(self.filecombo.currentText())
-            runconf = self.runconfig.get_run_configuration(filename)
-            if runconf is not None:
-                if wdir is None:
-                    if runconf.wdir_enabled:
-                        wdir = runconf.wdir
-                    elif runconf.cw_dir:
-                        wdir = os.getcwd()
-                    elif runconf.file_dir:
-                        wdir = osp.dirname(filename)
-                    elif runconf.fixed_dir:
-                        wdir = runconf.dir
-                if args is None:
-                    if runconf.args_enabled:
-                        args = runconf.args
             if wdir is None:
                 wdir = osp.dirname(filename)
-            if pythonpath is None:
-                pythonpath = self.spyder_pythonpath
             self.start(wdir, args, pythonpath)
 
     def select_file(self):
@@ -496,7 +486,7 @@ class LineProfilerDataTree(QTreeWidget):
     def populate_tree(self):
         """Create each item (and associated data) in the tree"""
         if not self.stats:
-            warn_item = QTreeWidgetItem(self)
+            warn_item = TreeWidgetItem(self)
             warn_item.setData(
                 0, Qt.DisplayRole,
                 _('No timings to display. '
@@ -519,7 +509,7 @@ class LineProfilerDataTree(QTreeWidget):
             # Function name and position
             filename, start_line_no, func_name = func_info
             func_stats, func_total_time = func_data
-            func_item = QTreeWidgetItem(self)
+            func_item = TreeWidgetItem(self)
             func_item.setData(
                 0, Qt.DisplayRole,
                 _('{func_name} ({time_ms:.3f}ms) in file "{filename}", '
@@ -548,7 +538,7 @@ class LineProfilerDataTree(QTreeWidget):
 
             # Lines of code
             for line_info in func_stats:
-                line_item = QTreeWidgetItem(func_item)
+                line_item = TreeWidgetItem(func_item)
                 (line_no, code_line, line_total_time, time_per_hit,
                  hits, percent) = line_info
                 self.fill_item(
