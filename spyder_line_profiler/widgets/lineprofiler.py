@@ -234,9 +234,9 @@ class LineProfilerWidget(QWidget):
 
     def start(self, wdir=None, args=None, pythonpath=None):
         filename = to_text_string(self.filecombo.currentText())
-        if wdir is None:
+        if wdir in [None, False]:
             wdir = self._last_wdir
-            if wdir is None:
+            if wdir in [None, False]:
                 wdir = osp.basename(filename)
         if args is None:
             args = self._last_args
