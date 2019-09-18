@@ -14,9 +14,9 @@ from qtpy.QtWidgets import QGroupBox, QLabel, QVBoxLayout
 from spyder.utils.qthelpers import qapplication
 MAIN_APP = qapplication()
 
+from spyder.api.plugins import SpyderPluginWidget
+from spyder.api.preferences import PluginConfigPage
 from spyder.config.base import get_translation
-from spyder.plugins import SpyderPluginWidget
-from spyder.plugins.configdialog import PluginConfigPage
 from spyder.utils import icon_manager as ima
 from spyder.utils.qthelpers import create_action
 
@@ -86,9 +86,6 @@ class LineProfiler(SpyderPluginWidget):
         layout.addWidget(self.widget)
         self.setLayout(layout)
 
-        # Initialize plugin
-        self.initialize_plugin()
-
     def update_pythonpath(self):
         """
         Update the PYTHONPATH used when running the line_profiler.
@@ -127,13 +124,14 @@ class LineProfiler(SpyderPluginWidget):
 
     def register_plugin(self):
         """Register plugin in Spyder's main window."""
+        super(LineProfiler, self).register_plugin()
+
         # Spyder PYTHONPATH
         self.update_pythonpath()
         self.main.sig_pythonpath_changed.connect(self.update_pythonpath)
 
         self.edit_goto.connect(self.main.editor.load)
         self.widget.redirect_stdio.connect(self.main.redirect_internalshell_stdio)
-        self.main.add_dockwidget(self)
 
         lineprofiler_act = create_action(self, _("Profile line by line"),
                                          icon=self.get_plugin_icon(),
@@ -163,10 +161,8 @@ class LineProfiler(SpyderPluginWidget):
 
     def analyze(self, filename):
         """Reimplement analyze method."""
-        if self.dockwidget and not self.ismaximized:
-            self.dockwidget.setVisible(True)
-            self.dockwidget.setFocus()
-            self.dockwidget.raise_()
+        if self.dockwidget:
+            self.switch_to_plugin()
         self.widget.analyze(
             filename=filename,
             use_colors=self.get_option('use_colors', True))
