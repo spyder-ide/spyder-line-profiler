@@ -27,9 +27,3 @@ conda install -q -y -c spyder-ide --file requirements/conda.txt
 
 # Install test ones
 conda install -q -y -c spyder-ide --file requirements/tests.txt
-
-# Github backend tests are failing with 1.1.1d
-conda install -q -y openssl=1.1.1c
-
-# Install coveralls
-pip install -q coveralls
