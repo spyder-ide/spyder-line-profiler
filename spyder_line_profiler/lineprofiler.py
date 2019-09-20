@@ -78,7 +78,6 @@ class LineProfiler(SpyderPluginWidget):
 
     def __init__(self, parent=None):
         SpyderPluginWidget.__init__(self, parent)
-        self.main = parent  # Spyder 3 compatibility
 
         # Create widget and add to dockwindow
         self.widget = LineProfilerWidget(self.main)
