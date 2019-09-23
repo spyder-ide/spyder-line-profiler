@@ -30,11 +30,11 @@ from qtpy.QtWidgets import (QHBoxLayout, QWidget, QMessageBox, QVBoxLayout,
 
 # Local imports
 from spyder.config.base import get_conf_path, get_translation
+from spyder.plugins.variableexplorer.widgets.texteditor import TextEditor
 from spyder.utils import programs
+from spyder.utils.misc import add_pathlist_to_PYTHONPATH
 from spyder.utils.qthelpers import create_toolbutton, get_icon
 from spyder.widgets.comboboxes import PythonModulesComboBox
-from spyder.utils.misc import add_pathlist_to_PYTHONPATH
-from spyder.widgets.variableexplorer.texteditor import TextEditor
 
 try:
     from spyder.py3compat import to_text_string, getcwd, pickle
@@ -88,7 +88,7 @@ class LineProfilerWidget(QWidget):
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         # Need running QApplication before importing runconfig
-        from spyder.plugins import runconfig
+        from spyder.preferences import runconfig
         self.runconfig = runconfig
         self.spyder_pythonpath = None
 
