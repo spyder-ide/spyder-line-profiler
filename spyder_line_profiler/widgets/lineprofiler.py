@@ -69,7 +69,19 @@ CODE_NOT_RUN_COLOR = QBrush(QColor.fromRgb(128, 128, 128, 200))
 WEBSITE_URL = 'http://pythonhosted.org/line_profiler/'
 
 class TreeWidgetItem(QTreeWidgetItem):
+    """
+    An extension of QTreeWidgetItem that replaces the sorting behaviour
+    such that the sorting is not purely by ASCII index but by natural
+    sorting, e.g. multi-digit numbers sorted based on their value instead 
+    of individual digits.
+    taken from 
+    https://stackoverflow.com/questions/21030719/sort-a-pyside-qtgui-
+    qtreewidget-by-an-alpha-numeric-column/
+    """
     def __lt__(self, other):
+        """
+        compares a widget text entry to another entry
+        """
         column = self.treeWidget().sortColumn()
         key1 = self.text(column)
         key2 = other.text(column)
@@ -77,6 +89,9 @@ class TreeWidgetItem(QTreeWidgetItem):
 
     @staticmethod
     def natural_sort_key(key):
+        """
+        natural sorting for both numbers and strings containing numbers
+        """
         regex = '(\d*\.\d+|\d+)'
         parts = re.split(regex, key)
         return tuple((e if i % 2 == 0 else float(e)) for i, e in enumerate(parts))
