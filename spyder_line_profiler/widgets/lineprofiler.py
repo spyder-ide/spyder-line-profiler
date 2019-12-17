@@ -15,6 +15,7 @@ from __future__ import with_statement
 import hashlib
 import inspect
 import linecache
+import re
 import os
 import os.path as osp
 import time
@@ -66,6 +67,37 @@ COL_POS = 0  # Position is not displayed but set as Qt.UserRole
 CODE_NOT_RUN_COLOR = QBrush(QColor.fromRgb(128, 128, 128, 200))
 
 WEBSITE_URL = 'http://pythonhosted.org/line_profiler/'
+
+
+class TreeWidgetItem(QTreeWidgetItem):
+    """
+    An extension of QTreeWidgetItem that replaces the sorting behaviour
+    such that the sorting is not purely by ASCII index but by natural
+    sorting, e.g. multi-digit numbers sorted based on their value instead
+    of individual digits.
+
+    Taken from
+    https://stackoverflow.com/questions/21030719/sort-a-pyside-qtgui-
+    qtreewidget-by-an-alpha-numeric-column/
+    """
+    def __lt__(self, other):
+        """
+        Compare a widget text entry to another entry.
+        """
+        column = self.treeWidget().sortColumn()
+        key1 = self.text(column)
+        key2 = other.text(column)
+        return self.natural_sort_key(key1) < self.natural_sort_key(key2)
+
+    @staticmethod
+    def natural_sort_key(key):
+        """
+        Natural sorting for both numbers and strings containing numbers.
+        """
+        regex = '(\d*\.\d+|\d+)'
+        parts = re.split(regex, key)
+        return tuple((e if i % 2 == 0 else float(e))
+                     for i, e in enumerate(parts))
 
 
 def is_lineprofiler_installed():
@@ -496,7 +528,7 @@ class LineProfilerDataTree(QTreeWidget):
     def populate_tree(self):
         """Create each item (and associated data) in the tree"""
         if not self.stats:
-            warn_item = QTreeWidgetItem(self)
+            warn_item = TreeWidgetItem(self)
             warn_item.setData(
                 0, Qt.DisplayRole,
                 _('No timings to display. '
@@ -519,7 +551,7 @@ class LineProfilerDataTree(QTreeWidget):
             # Function name and position
             filename, start_line_no, func_name = func_info
             func_stats, func_total_time = func_data
-            func_item = QTreeWidgetItem(self)
+            func_item = TreeWidgetItem(self)
             func_item.setData(
                 0, Qt.DisplayRole,
                 _('{func_name} ({time_ms:.3f}ms) in file "{filename}", '
@@ -548,7 +580,7 @@ class LineProfilerDataTree(QTreeWidget):
 
             # Lines of code
             for line_info in func_stats:
-                line_item = QTreeWidgetItem(func_item)
+                line_item = TreeWidgetItem(func_item)
                 (line_no, code_line, line_total_time, time_per_hit,
                  hits, percent) = line_info
                 self.fill_item(
