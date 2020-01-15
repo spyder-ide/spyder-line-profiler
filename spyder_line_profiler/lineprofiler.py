@@ -73,6 +73,7 @@ class LineProfiler(SpyderPluginWidget):
     Line profiler.
     """
     CONF_SECTION = 'lineprofiler'
+    CONF_DEFAULTS = [(CONF_SECTION, {'use_colors': True})]
     CONFIGWIDGET_CLASS = LineProfilerConfigPage
     edit_goto = Signal(str, int, str)
 
