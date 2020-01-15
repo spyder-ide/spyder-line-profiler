@@ -1,4 +1,4 @@
-coveralls
+coveralls >=1.8
 mock
 pytest
 pytest-cov
