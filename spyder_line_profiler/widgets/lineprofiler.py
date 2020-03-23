@@ -94,7 +94,7 @@ class TreeWidgetItem(QTreeWidgetItem):
         """
         Natural sorting for both numbers and strings containing numbers.
         """
-        regex = '(\d*\.\d+|\d+)'
+        regex = r'(\d*\.\d+|\d+)'
         parts = re.split(regex, key)
         return tuple((e if i % 2 == 0 else float(e))
                      for i, e in enumerate(parts))
