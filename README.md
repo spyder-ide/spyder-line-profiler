@@ -16,13 +16,12 @@
 [![Linux status](https://github.com/spyder-ide/spyder-line-profiler/workflows/Linux%20tests/badge.svg)](https://github.com/spyder-ide/spyder-line-profiler/actions?query=workflow%3A%22Linux+tests%22)
 [![MacOS status](https://github.com/spyder-ide/spyder-line-profiler/workflows/Macos%20tests/badge.svg)](https://github.com/spyder-ide/spyder-line-profiler/actions?query=workflow%3A%22Macos+tests%22)
 [![codecov](https://codecov.io/gh/spyder-ide/spyder-line-profiler/branch/master/graph/badge.svg)](https://codecov.io/gh/spyder-ide/spyder-line-profiler/branch/master)
-[![Crowdin](https://badges.crowdin.net/spyder-line-profiler/localized.svg)](https://crowdin.com/project/spyder-line-profiler)
 
 ## Description
 
 This is a plugin to run the Python
-`[line_profiler](https://pypi.python.org/pypi/line_profiler>`
-from within the Python IDE `[Spyder](https://github.com/spyder-ide/spyder).
+[line_profiler](https://pypi.python.org/pypi/line_profiler)
+from within the Python IDE [Spyder](https://github.com/spyder-ide/spyder).
 
 The code is an adaptation of the profiler plugin integrated in Spyder.
 
