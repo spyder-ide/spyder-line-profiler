@@ -1,5 +1,4 @@
-coveralls >=1.8
-mock
+codecov
 pytest
 pytest-cov
 pytest-qt
