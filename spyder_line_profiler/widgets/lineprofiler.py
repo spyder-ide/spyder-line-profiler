@@ -266,13 +266,22 @@ class LineProfilerWidget(QWidget):
 
     def show_log(self):
         if self.output:
-            TextEditor(self.output, title=_("Line profiler output"),
-                       readonly=True, size=(700, 500)).exec_()
+            editor = TextEditor(self.output, title=_("Line profiler output"),
+                                readonly=True)
+            # Call .show() to dynamically resize editor;
+            # see spyder-ide/spyder#12202
+            editor.show()
+            editor.exec_()
 
     def show_errorlog(self):
         if self.error_output:
-            TextEditor(self.error_output, title=_("Line profiler output"),
-                       readonly=True, size=(700, 500)).exec_()
+            editor = TextEditor(self.error_output,
+                                title=_("Line profiler output"),
+                                readonly=True)
+            # Call .show() to dynamically resize editor;
+            # see spyder-ide/spyder#12202
+            editor.show()
+            editor.exec_()
 
     def start(self, wdir=None, args=None, pythonpath=None):
         filename = to_text_string(self.filecombo.currentText())
