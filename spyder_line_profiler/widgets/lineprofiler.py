@@ -411,6 +411,8 @@ class LineProfilerDataTree(QTreeWidget):
     Convenience tree widget (with built-in model)
     to store and view line profiler data.
     """
+    edit_goto = Signal(str, int, str)
+
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
         self.header_list = [
@@ -614,7 +616,7 @@ class LineProfilerDataTree(QTreeWidget):
 
     def item_activated(self, item):
         filename, line_no = item.data(COL_POS, Qt.UserRole)
-        self.parent().edit_goto.emit(filename, line_no, '')
+        self.edit_goto.emit(filename, line_no, '')
 
 
 def test():
