@@ -1,5 +1,29 @@
 # History of changes
 
+## Version 0.2.1 (2020/04/28)
+
+This release fixes some compatibility issues with Spyder 4.1 and some other bugs.
+
+### Issues Closed
+
+* [Issue 44](https://github.com/spyder-ide/spyder-line-profiler/issues/44) - TextEditor initializer receives unexpected argument size ([PR 46](https://github.com/spyder-ide/spyder-line-profiler/pull/46))
+* [Issue 41](https://github.com/spyder-ide/spyder-line-profiler/issues/41) - Move CI to github actions ([PR 45](https://github.com/spyder-ide/spyder-line-profiler/pull/45))
+* [Issue 39](https://github.com/spyder-ide/spyder-line-profiler/issues/39) - Crash from opening options ([PR 40](https://github.com/spyder-ide/spyder-line-profiler/pull/40))
+* [Issue 35](https://github.com/spyder-ide/spyder-line-profiler/issues/35) - Opening editor from line profiler output is broken ([PR 47](https://github.com/spyder-ide/spyder-line-profiler/pull/47))
+
+In this release 4 issues were closed.
+
+### Pull Requests Merged
+
+* [PR 47](https://github.com/spyder-ide/spyder-line-profiler/pull/47) - PR: Fix opening editor from profiler widget ([35](https://github.com/spyder-ide/spyder-line-profiler/issues/35))
+* [PR 46](https://github.com/spyder-ide/spyder-line-profiler/pull/46) - PR: Fix initialization of TextEditor ([44](https://github.com/spyder-ide/spyder-line-profiler/issues/44))
+* [PR 45](https://github.com/spyder-ide/spyder-line-profiler/pull/45) - PR: Move CI to GitHub Actions ([41](https://github.com/spyder-ide/spyder-line-profiler/issues/41))
+* [PR 43](https://github.com/spyder-ide/spyder-line-profiler/pull/43) - PR: Fix invalid escape sequence in regex string
+* [PR 40](https://github.com/spyder-ide/spyder-line-profiler/pull/40) - PR: Add CONF_DEFAULTS ([39](https://github.com/spyder-ide/spyder-line-profiler/issues/39))
+
+In this release 5 pull requests were closed.
+
+
 ## Version 0.2.0 (2019/12/18)
 
 This release updates the plugin to be used with Spyder 4 and fixes some bugs.
