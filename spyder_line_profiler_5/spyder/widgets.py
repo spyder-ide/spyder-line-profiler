@@ -668,5 +668,7 @@ class LineProfilerDataTree(QTreeWidget):
                 line_item.setFont(COL_LINE, monospace_font)
                 
     def onItemClick(self, item):
-        filename, line_no = item.data(COL_POS, Qt.UserRole)
+        data = item.data(COL_POS, Qt.UserRole)
+        if data is None or len(data)<2: return
+        filename, line_no = data
         self.sig_edit_goto_requested.emit(filename, line_no, '')
