@@ -16,3 +16,5 @@ Christer van der Meeren ([@cmeeren](http://github.com/cmeeren))
 Gonzalo Peña-Castellanos ([@goanpeca](http://github.com/goanpeca))
 
 Steven Silvester ([@blink1073](http://github.com/blink1073))
+
+Simon Kern ([@skjerns](http://github.com/skjerns))

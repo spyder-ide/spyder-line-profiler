@@ -23,7 +23,6 @@ In this release 4 issues were closed.
 
 In this release 5 pull requests were closed.
 
-
 ## Version 0.2.0 (2019/12/18)
 
 This release updates the plugin to be used with Spyder 4 and fixes some bugs.
@@ -46,7 +45,6 @@ In this release 2 issues were closed.
 
 In this release 6 pull requests were closed.
 
-
 ## Version 0.1.1 (2017/03/26)
 
 This version improves the packaging. The code itself was not changed.
@@ -56,7 +54,6 @@ This version improves the packaging. The code itself was not changed.
 * [PR 22](https://github.com/spyder-ide/spyder-line-profiler/pull/22) - Install tests alongside package
 
 In this release 1 pull request was closed.
-
 
 ## Version 0.1.0 (2017/03/22)
 

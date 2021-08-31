@@ -13,17 +13,21 @@ import os
 import os.path as osp
 
 
-def get_version():
+def get_version(LIBNAME):
     """Get version from source file"""
     import codecs
-    with codecs.open("spyder_line_profiler/__init__.py", encoding="utf-8") as f:
+    with codecs.open(LIBNAME + "/__init__.py", encoding="utf-8") as f:
         lines = f.read().splitlines()
         for l in lines:
             if "__version__" in l:
                 version = l.split("=")[1].strip()
                 version = version.replace("'", '').replace('"', '')
                 return version
-
+            
+def spyder5_installed():
+    """Get spyder version"""
+    import spyder
+    return int(spyder.__version__[0]) > 4
 
 def get_package_data(name, extlist):
     """Return data files for package *name* with extensions in *extlist*"""
@@ -40,7 +44,7 @@ def get_package_data(name, extlist):
 # Requirements
 REQUIREMENTS = ['line_profiler', 'spyder>=4']
 EXTLIST = ['.jpg', '.png', '.json', '.mo', '.ini']
-LIBNAME = 'spyder_line_profiler'
+LIBNAME = 'spyder_line_profiler' + ("_5" if spyder5_installed() else "")
 
 
 LONG_DESCRIPTION = """
@@ -60,29 +64,41 @@ with a stronger color take more time to run.
 .. image: https://raw.githubusercontent.com/spyder-ide/spyder-line-profiler/master/img_src/screenshot_profler.png
 """
 
+
 setup(
     name=LIBNAME,
-    version=get_version(),
+    version=get_version(LIBNAME),
     packages=find_packages(),
     package_data={LIBNAME: get_package_data(LIBNAME, EXTLIST)},
-    keywords=["Qt PyQt4 PyQt5 PySide spyder plugins spyplugins line_profiler profiler"],
+    description="Plugin for the Spyder IDE that integrates the Python line profiler.",
     install_requires=REQUIREMENTS,
-    url='https://github.com/spyder-ide/spyder-line-profiler',
-    license='MIT',
-    author="Spyder Project Contributors",
-    description='Plugin for the Spyder IDE that integrates the Python line profiler.',
+    url="https://github.com/skjerns/spyder-line-profiler",
+    license="MIT",
+    python_requires='>= 3.7',
+    entry_points={
+        "spyder.plugins": [
+            "spyder_line_profiler_5 = spyder_line_profiler_5.spyder.plugin:SpyderLineProfiler5"
+        ],
+    } if spyder5_installed() else {},
     long_description=LONG_DESCRIPTION,
     classifiers=[
-        'Development Status :: 4 - Beta',
-        'Environment :: X11 Applications :: Qt',
+        "Operating System :: MacOS",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX :: Linux",
         'Environment :: Win32 (MS Windows)',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
+        'Environment :: X11 Applications :: Qt',
+        "Programming Language :: Python :: 3",
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-        'Topic :: Software Development',
-        'Topic :: Text Editors :: Integrated Development Environments (IDE)'])
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Education",
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "Topic :: Scientific/Engineering",
+        'License :: OSI Approved :: MIT License',
+        'Topic :: Text Editors :: Integrated Development Environments (IDE)'
+        ]
+)
