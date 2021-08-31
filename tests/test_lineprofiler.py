@@ -16,8 +16,17 @@ from qtpy.QtCore import Qt
 from spyder.utils.qthelpers import qapplication
 MAIN_APP = qapplication() 
 
+def spyder5_installed():
+    """Get spyder version"""
+    import spyder
+    return int(spyder.__version__[0]) > 4
+    
 # Local imports
-from spyder_line_profiler.widgets.lineprofiler import LineProfilerWidget
+if spyder5_installed():
+    from spyder_line_profiler_5.spyder.widgets import SpyderLineProfiler5Widget
+else:
+    from spyder_line_profiler.widgets.lineprofiler import LineProfilerWidget
+
 
 try:
     from unittest.mock import Mock
@@ -44,10 +53,15 @@ def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
         f.write(TEST_SCRIPT)
 
     MockQMessageBox = Mock()
-    monkeypatch.setattr('spyder_line_profiler.widgets.lineprofiler.QMessageBox',
+    
+    if spyder5_installed():
+        monkeypatch.setattr('spyder_line_profiler_5.spyder.widgets.QMessageBox',
+                        MockQMessageBox)
+    else:
+        monkeypatch.setattr('spyder_line_profiler.widgets.lineprofiler.QMessageBox',
                         MockQMessageBox)
 
-    widget = LineProfilerWidget(None)
+    widget = SpyderLineProfiler5Widget(None)
     qtbot.addWidget(widget)
     with qtbot.waitSignal(widget.sig_finished, timeout=10000, raising=True):
         widget.analyze(testfilename)
@@ -72,3 +86,5 @@ def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
     assert float(top.child(3).data(2, Qt.DisplayRole)) <= 100
     assert float(top.child(4).data(2, Qt.DisplayRole)) <= 100
     assert float(top.child(5).data(2, Qt.DisplayRole)) <= 100
+
+

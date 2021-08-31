@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false 
       matrix:
-        PYTHON_VERSION: ['3.6', '3.7', '3.8']
+        PYTHON_VERSION: ['3.6', '3.7', '3.8', '3.9']
     steps:
       - name: Checkout branch
         uses: actions/checkout@v2
@@ -48,7 +48,7 @@ jobs:
           conda list
       - name: Run tests
         shell: bash -l {0}
-        run: pytest spyder_line_profiler --cov=spyder_line_profiler -x -vv
+        run: pytest tests --cov=spyder_line_profiler -x -vv
         timeout-minutes: 10
       - name: Upload coverage to Codecov
         shell: bash -l {0}

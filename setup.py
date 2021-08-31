@@ -74,7 +74,7 @@ setup(
     install_requires=REQUIREMENTS,
     url="https://github.com/skjerns/spyder-line-profiler",
     license="MIT",
-    python_requires='>= 3.7',
+    python_requires='>= 3.5',
     entry_points={
         "spyder.plugins": [
             "spyder_line_profiler_5 = spyder_line_profiler_5.spyder.plugin:SpyderLineProfiler5"
