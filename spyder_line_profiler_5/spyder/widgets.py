@@ -245,12 +245,13 @@ class SpyderLineProfiler5Widget(PluginMainWidget):
         pass
 
     def setup(self):
-        # strangely enough I need this for the widget to appear at all
-        menu = self.get_options_menu()
-        self.add_item_to_menu(
-            lambda x:x,
-            menu,
-        )
+        pass
+        # in spyder>5.2 we need to remove this section for the menu item to appear
+        #menu = self.get_options_menu()
+        #self.add_item_to_menu(
+        #    lambda x:x,
+        #    menu,
+        #)
         
 
         
