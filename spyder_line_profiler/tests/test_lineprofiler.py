@@ -17,8 +17,7 @@ from spyder.utils.qthelpers import qapplication
 MAIN_APP = qapplication() 
 
 # Local imports
-from spyder_line_profiler.widgets.lineprofiler import LineProfilerWidget
-
+from spyder_line_profiler.spyder.widgets import SpyderLineProfilerWidget
 try:
     from unittest.mock import Mock
 except ImportError:
@@ -44,10 +43,10 @@ def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
         f.write(TEST_SCRIPT)
 
     MockQMessageBox = Mock()
-    monkeypatch.setattr('spyder_line_profiler.widgets.lineprofiler.QMessageBox',
-                        MockQMessageBox)
+    # monkeypatch.setattr('spyder_line_profiler.widgets.lineprofiler.QMessageBox',
+    #                     MockQMessageBox)
 
-    widget = LineProfilerWidget(None)
+    widget = SpyderLineProfilerWidget(None)
     qtbot.addWidget(widget)
     with qtbot.waitSignal(widget.sig_finished, timeout=10000, raising=True):
         widget.analyze(testfilename)
