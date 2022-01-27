@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
+# ----------------------------------------------------------------------------
+# Copyright © 2021, Spyder Line Profiler 5
 #
-# Copyright © 2011 Spyder Project Contributors
-# Licensed under the terms of the MIT License
-# (see LICENSE.txt for details)
-
+# Licensed under the terms of the MIT license
+# ----------------------------------------------------------------------------
 """
-Line Profiler widget
-
-See the official documentation of line_profiler:
-http://pythonhosted.org/line_profiler/
+Spyder Line Profiler 5 Main Widget.
 """
 # Standard library imports
 from __future__ import with_statement
@@ -19,41 +16,32 @@ import re
 import os
 import os.path as osp
 import time
-import sys
 
 # Third party imports
-from qtpy.compat import getopenfilename
+from qtpy.QtWidgets import QHBoxLayout, QLabel
+from qtpy.QtGui import QBrush, QColor, QFont
 from qtpy.QtCore import (QByteArray, QProcess, Qt, QTextCodec,
                          QProcessEnvironment, Signal)
-from qtpy.QtGui import QBrush, QColor, QFont
-from qtpy.QtWidgets import (QHBoxLayout, QWidget, QMessageBox, QVBoxLayout,
-                            QLabel, QTreeWidget, QTreeWidgetItem, QApplication)
-
-# Local imports
-from spyder.config.base import get_conf_path, get_translation
+from qtpy.QtWidgets import (QMessageBox, QVBoxLayout,
+                            QTreeWidget, QTreeWidgetItem, QApplication)
+from qtpy.compat import getopenfilename
 from spyder.plugins.variableexplorer.widgets.texteditor import TextEditor
-from spyder.utils import programs
-from spyder.utils.misc import add_pathlist_to_PYTHONPATH
-from spyder.utils.qthelpers import create_toolbutton, get_icon
+
+# Spyder imports
+from spyder.api.config.decorators import on_conf_change
+from spyder.api.translations import get_translation
+from spyder.config.base import get_conf_path
+
+from spyder.api.widgets.main_widget import PluginMainWidget
 from spyder.widgets.comboboxes import PythonModulesComboBox
+from spyder.utils.qthelpers import create_toolbutton
+from spyder.utils import programs
+from spyder.utils.misc import add_pathlist_to_PYTHONPATH, getcwd_or_home
+from spyder.plugins.run.widgets import get_run_configuration
+from spyder.py3compat import to_text_string, getcwd, pickle
 
-try:
-    from spyder.py3compat import to_text_string, getcwd, pickle
-except ImportError:
-    # python2
-    to_text_string = unicode
-    getcwd = os.getcwdu
-    import cPickle as pickle
-
-# This is needed for testing this module as a stand alone script
-try:
-    _ = get_translation("line_profiler", dirname="spyder_line_profiler")
-except KeyError as error:
-    import gettext
-    _ = gettext.gettext
-
-
-locale_codec = QTextCodec.codecForLocale()
+# Localization
+_ = get_translation("spyder_line_profiler_5.spyder")
 
 
 COL_NO = 0
@@ -68,7 +56,27 @@ CODE_NOT_RUN_COLOR = QBrush(QColor.fromRgb(128, 128, 128, 200))
 
 WEBSITE_URL = 'http://pythonhosted.org/line_profiler/'
 
+locale_codec = QTextCodec.codecForLocale()
 
+
+# This is needed for testing this module as a stand alone script
+try:
+    _ = get_translation("line_profiler", dirname="spyder_line_profiler")
+except KeyError as error:
+    import gettext
+    _ = gettext.gettext
+
+
+
+def is_lineprofiler_installed():
+    """
+    Checks if the program and the library for line_profiler is installed.
+    """
+    return (programs.is_module_installed('line_profiler')
+            and programs.find_program('kernprof') is not None)
+
+
+    
 class TreeWidgetItem(QTreeWidgetItem):
     """
     An extension of QTreeWidgetItem that replaces the sorting behaviour
@@ -100,28 +108,35 @@ class TreeWidgetItem(QTreeWidgetItem):
                      for i, e in enumerate(parts))
 
 
-def is_lineprofiler_installed():
-    """
-    Checks if the program and the library for line_profiler is installed.
-    """
-    return (programs.is_module_installed('line_profiler')
-            and programs.find_program('kernprof') is not None)
 
 
-class LineProfilerWidget(QWidget):
-    """
-    Line profiler widget.
-    """
+class SpyderLineProfiler5Widget(PluginMainWidget):
+
+    # PluginMainWidget class constants
     DATAPATH = get_conf_path('lineprofiler.results')
     VERSION = '0.0.1'
     redirect_stdio = Signal(bool)
     sig_finished = Signal()
+    # Signals
+    sig_edit_goto_requested = Signal(str, int, str)
+    """
+    This signal will request to open a file in a given row and column
+    using a code editor.
+    
+    Parameters
+    ----------
+    path: str
+        Path to file.
+    row: int
+        Cursor starting row position.
+    word: str
+        Word to select on given row.
+    """
 
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-        # Need running QApplication before importing runconfig
-        from spyder.preferences import runconfig
-        self.runconfig = runconfig
+    def __init__(self, name=None, plugin=None, parent=None):
+        super().__init__(name, plugin, parent)
+
+
         self.spyder_pythonpath = None
 
         self.setWindowTitle("Line profiler")
@@ -138,13 +153,13 @@ class LineProfilerWidget(QWidget):
         self.filecombo = PythonModulesComboBox(self)
 
         self.start_button = create_toolbutton(
-            self, icon=get_icon('run.png'),
+            self, icon='run',
             text=_("Profile by line"),
             tip=_("Run line profiler"),
             triggered=(lambda checked=False: self.analyze()), text_beside_icon=True)
         self.stop_button = create_toolbutton(
             self,
-            icon=get_icon('terminate.png'),
+            icon='stop',
             text=_("Stop"),
             tip=_("Stop current profiling"),
             text_beside_icon=True)
@@ -154,14 +169,14 @@ class LineProfilerWidget(QWidget):
         #        triggering show_data() too early, too often.
 
         browse_button = create_toolbutton(
-            self, icon=get_icon('fileopen.png'),
+            self, icon='fileopen',
             tip=_('Select Python script'),
             triggered=self.select_file)
 
         self.datelabel = QLabel()
 
         self.log_button = create_toolbutton(
-            self, icon=get_icon('log.png'),
+            self, icon='history',
             text=_("Output"),
             text_beside_icon=True,
             tip=_("Show program's output"),
@@ -171,12 +186,12 @@ class LineProfilerWidget(QWidget):
 
         self.collapse_button = create_toolbutton(
             self,
-            icon=get_icon('collapse.png'),
+            icon='collapse',
             triggered=lambda dD=-1: self.datatree.collapseAll(),
             tip=_('Collapse all'))
         self.expand_button = create_toolbutton(
             self,
-            icon=get_icon('expand.png'),
+            icon='expand',
             triggered=lambda dD=1: self.datatree.expandAll(),
             tip=_('Expand all'))
 
@@ -203,7 +218,11 @@ class LineProfilerWidget(QWidget):
         self.process = None
         self.set_running_state(False)
         self.start_button.setEnabled(False)
-
+        
+        # Signals
+        self.datatree.sig_edit_goto_requested.connect(
+            self.sig_edit_goto_requested)
+        
         if not is_lineprofiler_installed():
             for widget in (self.datatree, self.filecombo, self.log_button,
                            self.start_button, self.stop_button, browse_button,
@@ -217,6 +236,25 @@ class LineProfilerWidget(QWidget):
         else:
             pass  # self.show_data()
 
+    # --- PluginMainWidget API
+    # ------------------------------------------------------------------------
+    def get_title(self):
+        return _("Line Profiler")
+
+    def get_focus_widget(self):
+        pass
+
+    def setup(self):
+        pass
+        # in spyder>5.2 we need to remove this section for the menu item to appear
+        #menu = self.get_options_menu()
+        #self.add_item_to_menu(
+        #    lambda x:x,
+        #    menu,
+        #)
+        
+
+        
     def analyze(self, filename=None, wdir=None, args=None, pythonpath=None,
                 use_colors=True):
         self.use_colors = use_colors
@@ -233,9 +271,10 @@ class LineProfilerWidget(QWidget):
             else:
                 self.filecombo.setCurrentIndex(index)
             self.filecombo.selected()
+            
         if self.filecombo.is_valid():
             filename = to_text_string(self.filecombo.currentText())
-            runconf = self.runconfig.get_run_configuration(filename)
+            runconf = get_run_configuration(filename)
             if runconf is not None:
                 if wdir is None:
                     if runconf.wdir_enabled:
@@ -257,8 +296,15 @@ class LineProfilerWidget(QWidget):
 
     def select_file(self):
         self.redirect_stdio.emit(False)
+        try:    
+            curr_script = self.editor.get_current_filename()
+        except:
+            curr_script = None
+            
+        pwd = curr_script if curr_script else getcwd_or_home()
+        
         filename, _selfilter = getopenfilename(
-            self, _("Select Python script"), getcwd(),
+            self, _("Select Python script"), pwd,
             _("Python scripts")+" (*.py ; *.pyw)")
         self.redirect_stdio.emit(False)
         if filename:
@@ -404,15 +450,23 @@ class LineProfilerWidget(QWidget):
         date_text = text_style % time.strftime("%d %b %Y %H:%M",
                                                time.localtime())
         self.datelabel.setText(date_text)
+    def update_actions(self):
+        pass
+
+    @on_conf_change
+    def on_section_conf_change(self, section):
+        pass
 
 
+    
+    
 class LineProfilerDataTree(QTreeWidget):
     """
     Convenience tree widget (with built-in model)
     to store and view line profiler data.
     """
-    edit_goto = Signal(str, int, str)
-
+    sig_edit_goto_requested = Signal(str, int, str)
+    
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
         self.header_list = [
@@ -424,7 +478,7 @@ class LineProfilerDataTree(QTreeWidget):
         self.setColumnCount(len(self.header_list))
         self.setHeaderLabels(self.header_list)
         self.clear()
-        self.itemActivated.connect(self.item_activated)
+        self.itemClicked.connect(self.onItemClick)
 
     def show_tree(self):
         """Populate the tree with line profiler data and display it."""
@@ -613,23 +667,9 @@ class LineProfilerDataTree(QTreeWidget):
 
                 # Monospace font for code
                 line_item.setFont(COL_LINE, monospace_font)
-
-    def item_activated(self, item):
-        filename, line_no = item.data(COL_POS, Qt.UserRole)
-        self.edit_goto.emit(filename, line_no, '')
-
-
-def test():
-    """Run widget test"""
-    from spyder.utils.qthelpers import qapplication
-    app = qapplication()
-    widget = LineProfilerWidget(None)
-    widget.resize(800, 600)
-    widget.show()
-    widget.analyze(osp.normpath(osp.join(osp.dirname(__file__), os.pardir,
-                                         'tests/profiling_test_script.py')),
-                   use_colors=True)
-    sys.exit(app.exec_())
-
-if __name__ == '__main__':
-    test()
+                
+    def onItemClick(self, item):
+        data = item.data(COL_POS, Qt.UserRole)
+        if data is None or len(data)<2: return
+        filename, line_no = data
+        self.sig_edit_goto_requested.emit(filename, line_no, '')
