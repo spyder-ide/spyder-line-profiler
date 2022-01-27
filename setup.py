@@ -23,7 +23,7 @@ def get_version():
                 version = l.split("=")[1].strip()
                 version = version.replace("'", '').replace('"', '')
                 return version
-stop
+
 
 def get_package_data(name, extlist):
     """Return data files for package *name* with extensions in *extlist*"""
@@ -38,7 +38,7 @@ def get_package_data(name, extlist):
 
 
 # Requirements
-REQUIREMENTS = ['line_profiler', 'spyder>=4']
+REQUIREMENTS = ['line_profiler', 'spyder>=5']
 EXTLIST = ['.jpg', '.png', '.json', '.mo', '.ini']
 LIBNAME = 'spyder_line_profiler'
 
