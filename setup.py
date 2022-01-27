@@ -23,7 +23,7 @@ def get_version():
                 version = l.split("=")[1].strip()
                 version = version.replace("'", '').replace('"', '')
                 return version
-
+stop
 
 def get_package_data(name, extlist):
     """Return data files for package *name* with extensions in *extlist*"""
