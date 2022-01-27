@@ -52,7 +52,7 @@ jobs:
           conda list
       - name: Run tests
         shell: bash -l {0}
-        run: xvfb-run --auto-servernum pytest tests --cov=spyder_line_profiler -x -vv
+        run: xvfb-run --auto-servernum pytest --cov=spyder_line_profiler -x -vv
         timeout-minutes: 10
       - name: Upload coverage to Codecov
         shell: bash -l {0}

@@ -48,7 +48,7 @@ jobs:
           conda list
       - name: Run tests
         shell: bash -l {0}
-        run: pytest tests --cov=spyder_line_profiler -x -vv
+        run: pytest --cov=spyder_line_profiler -x -vv
         timeout-minutes: 10
       - name: Upload coverage to Codecov
         shell: bash -l {0}
