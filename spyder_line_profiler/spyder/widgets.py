@@ -41,7 +41,7 @@ from spyder.plugins.run.widgets import get_run_configuration
 from spyder.py3compat import to_text_string, getcwd, pickle
 
 # Localization
-_ = get_translation("spyder_line_profiler_5.spyder")
+_ = get_translation("spyder_line_profiler.spyder")
 
 
 COL_NO = 0
@@ -110,7 +110,7 @@ class TreeWidgetItem(QTreeWidgetItem):
 
 
 
-class SpyderLineProfiler5Widget(PluginMainWidget):
+class SpyderLineProfilerWidget(PluginMainWidget):
 
     # PluginMainWidget class constants
     DATAPATH = get_conf_path('lineprofiler.results')
