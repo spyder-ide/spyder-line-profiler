@@ -46,5 +46,5 @@ jobs:
           conda list
       - name: Run tests
         shell: bash -l {0}
-        run: pytest test -x -vv
+        run: pytest tests -x -vv
         timeout-minutes: 10
