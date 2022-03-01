@@ -43,8 +43,6 @@ def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
         f.write(TEST_SCRIPT)
 
     MockQMessageBox = Mock()
-    # monkeypatch.setattr('spyder_line_profiler.widgets.lineprofiler.QMessageBox',
-    #                     MockQMessageBox)
 
     widget = SpyderLineProfilerWidget(None)
     qtbot.addWidget(widget)

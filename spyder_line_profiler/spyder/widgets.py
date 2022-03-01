@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # ----------------------------------------------------------------------------
-# Copyright © 2021, Spyder Line Profiler 5
+# Copyright © 2021, Spyder Line Profiler contributors
 #
 # Licensed under the terms of the MIT license
 # ----------------------------------------------------------------------------
@@ -246,13 +246,6 @@ class SpyderLineProfilerWidget(PluginMainWidget):
 
     def setup(self):
         pass
-        # in spyder>5.2 we need to remove this section for the menu item to appear
-        #menu = self.get_options_menu()
-        #self.add_item_to_menu(
-        #    lambda x:x,
-        #    menu,
-        #)
-        
 
         
     def analyze(self, filename=None, wdir=None, args=None, pythonpath=None,
