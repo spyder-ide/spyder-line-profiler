@@ -1,2 +1,2 @@
 line_profiler
-spyder >=5.2
+spyder >=5.1.5
