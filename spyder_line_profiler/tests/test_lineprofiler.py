@@ -45,6 +45,7 @@ def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
     MockQMessageBox = Mock()
 
     widget = SpyderLineProfilerWidget(None)
+    widget.setup()
     qtbot.addWidget(widget)
     with qtbot.waitSignal(widget.sig_finished, timeout=10000, raising=True):
         widget.analyze(testfilename)

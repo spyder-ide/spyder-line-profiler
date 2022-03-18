@@ -167,8 +167,10 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         self.output = None
         self.use_colors = True
         self.spyder_pythonpath = None
+        self.process = None
+        self.started_time = None
+        
         # Widgets
-
         self.filecombo = PythonModulesComboBox(
             self, id_= SpyderLineProfilerWidgetMainToolbarItems.FileCombo)
         self.datatree = LineProfilerDataTree(self)
@@ -253,8 +255,6 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             triggered=self.clear_data,
         )
 
-        self.process = None
-        self.started_time = None
         self.set_running_state(False)
         self.start_action.setEnabled(False)
         self.clear_action.setEnabled(False)
