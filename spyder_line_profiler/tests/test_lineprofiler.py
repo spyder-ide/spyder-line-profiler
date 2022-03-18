@@ -43,13 +43,13 @@ foo()"""
 class MockPythonModulesComboBox(PythonModulesComboBox):
    
     def __init__(self, parent, adjust_to_contents=False, id_=None, **kwargs):
-        version = int(''.join([str(x) for x in spyder.version_info]))
-        if version>=512:
+        try:
             PythonModulesComboBox.__init__(self, parent=parent, id_=id_,
-                                       adjust_to_contents=adjust_to_contents)
-        else:
+                                   adjust_to_contents=adjust_to_contents)
+        except:
             PythonModulesComboBox.__init__(self, parent=parent,
                                        adjust_to_contents=adjust_to_contents)
+
 
         
 def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
