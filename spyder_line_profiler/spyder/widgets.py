@@ -223,7 +223,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             SpyderLineProfilerWidgetActions.ShowOutput,
             text=_("Show Result"),
             tip=_("Show program's output"),
-            icon=qta.icon("msc.output", color=ima.MAIN_FG_COLOR),
+            icon=qta.icon("fa.file-text", color=ima.MAIN_FG_COLOR),
             triggered=self.show_log,
         )
         self.collapse_action = self.create_action(
@@ -251,7 +251,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             SpyderLineProfilerWidgetActions.Clear,
             text=_("Clear output"),
             tip=_('Clear'),
-            icon=qta.icon("msc.trash", color=ima.MAIN_FG_COLOR),
+            icon=qta.icon("fa.trash", color=ima.MAIN_FG_COLOR),
             triggered=self.clear_data,
         )
 
