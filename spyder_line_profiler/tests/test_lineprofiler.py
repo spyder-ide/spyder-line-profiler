@@ -17,7 +17,12 @@ from spyder.utils.qthelpers import qapplication
 MAIN_APP = qapplication() 
 
 # Local imports
+import spyder
+import spyder_line_profiler
 from spyder_line_profiler.spyder.widgets import SpyderLineProfilerWidget
+from spyder_line_profiler.spyder.widgets import PythonModulesComboBox
+
+
 try:
     from unittest.mock import Mock
 except ImportError:
@@ -33,6 +38,19 @@ def foo():
     for k in range(100):
         xs = xs + ['x']
 foo()"""
+
+
+class MockPythonModulesComboBox(PythonModulesComboBox):
+   
+    def __init__(self, parent, adjust_to_contents=False, id_=None, **kwargs):
+        version = int(''.join([str(x) for x in spyder.version_info]))
+        if version>=512:
+            PythonModulesComboBox.__init__(self, parent=parent, id_=id_,
+                                       adjust_to_contents=adjust_to_contents)
+        else:
+            PythonModulesComboBox.__init__(self, parent=parent,
+                                       adjust_to_contents=adjust_to_contents)
+
         
 def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
     """Run profiler on simple script and check that results are okay."""
@@ -44,6 +62,7 @@ def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
 
     MockQMessageBox = Mock()
 
+    spyder_line_profiler.spyder.widgets.PythonModulesComboBox = MockPythonModulesComboBox
     widget = SpyderLineProfilerWidget(None)
     widget.setup()
     qtbot.addWidget(widget)
