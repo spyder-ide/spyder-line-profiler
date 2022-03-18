@@ -15,13 +15,24 @@ from qtpy.QtGui import QIcon
 from spyder.api.plugins import Plugins, SpyderDockablePlugin
 from spyder.api.translations import get_translation
 from spyder.api.plugin_registration.decorators import on_plugin_available
+from spyder.api.plugin_registration.decorators import on_plugin_teardown
+from qtpy.QtCore import Signal
 
 # Local imports
+from spyder.plugins.mainmenu.api import ApplicationMenus
 from spyder_line_profiler.spyder.confpage import SpyderLineProfilerConfigPage
 from spyder_line_profiler.spyder.widgets import SpyderLineProfilerWidget
+from spyder_line_profiler.spyder.widgets import SpyderLineProfilerWidgetActions
+from spyder_line_profiler.spyder.widgets import is_lineprofiler_installed
 
 _ = get_translation("spyder_line_profiler.spyder")
 
+
+
+class SpyderLineProfilerActions:
+    # Triggers
+    Run = 'run_action_menu'
+    
 
 class SpyderLineProfiler(SpyderDockablePlugin):
     """
@@ -30,13 +41,15 @@ class SpyderLineProfiler(SpyderDockablePlugin):
 
     NAME = "spyder_line_profiler"
     REQUIRES = [Plugins.Editor]
-    OPTIONAL = []
+    OPTIONAL = [Plugins.MainMenu]
     TABIFY = Plugins.Help
     WIDGET_CLASS = SpyderLineProfilerWidget
     CONF_SECTION = NAME
     CONF_WIDGET_CLASS = SpyderLineProfilerConfigPage
 
     # --- Signals
+    # sig_finished = Signal()
+    """This signal is emitted to inform the profile profiling has finished."""
 
     # --- SpyderDockablePlugin API
     # ------------------------------------------------------------------------
@@ -50,23 +63,38 @@ class SpyderLineProfiler(SpyderDockablePlugin):
     def get_icon(self):
         return QIcon('./data/images/spyder.line_profiler.png')
 
-
     def on_initialize(self):
-        widget = self.get_widget()
+        self.widget = self.get_widget()
+        # self.widget.sig_finished.connect(self.sig_finished)
+        
+        run_action = self.create_action(
+                        SpyderLineProfilerActions.Run,
+                        text=_("Run line profiler"),
+                        tip=_("Run line profiler"),
+                        icon=self.get_icon(),
+                        triggered=self.run_lineprofiler,
+                        register_shortcut=True,
+                        )   
+        run_action.setEnabled(is_lineprofiler_installed())
+        
+        
+    @on_plugin_available(plugin=Plugins.MainMenu)
+    def on_main_menu_available(self):
+        mainmenu = self.get_plugin(Plugins.MainMenu)
+        start_action = self.get_action(SpyderLineProfilerActions.Run)
+        mainmenu.add_item_to_application_menu(
+            start_action, menu_id=ApplicationMenus.Run)
+        
+    @on_plugin_teardown(plugin=Plugins.MainMenu)
+    def on_main_menu_teardown(self):
+        mainmenu = self.get_plugin(Plugins.MainMenu)
 
-        # run_action = self.create_action(
-        #     ProfilerActions.ProfileCurrentFile,
-        #     text=_("Run profiler"),
-        #     tip=_("Run profiler"),
-        #     icon=self.create_icon('profiler'),
-        #     triggered=self.run_profiler,
-        #     register_shortcut=True,
-        # )
-
-        # run_action.setEnabled(is_profiler_installed())
-        # editor = self.get_plugin(Plugins.Editor)
-        # widget.sig_edit_goto_requested.connect(editor.load)
-            
+        mainmenu.remove_item_from_application_menu(
+            SpyderLineProfilerActions.ProfileCurrentFile,
+            menu_id=ApplicationMenus.Run
+        )    
+        
+        
     def check_compatibility(self):
         valid = True
         message = ""  # Note: Remember to use _("") to localize the string
@@ -75,13 +103,7 @@ class SpyderLineProfiler(SpyderDockablePlugin):
     def on_close(self, cancellable=True):
         return True
         
-    @on_plugin_available(plugin=Plugins.Editor)
-    def on_editor_available(self):
-        widget = self.get_widget()
-        editor = self.get_plugin(Plugins.Editor)
-        widget.editor = editor
-        widget.sig_edit_goto_requested.connect(editor.load)
-        
+
     # --- Public API
     # ------------------------------------------------------------------------
     def update_pythonpath(self):
@@ -108,6 +130,4 @@ class SpyderLineProfiler(SpyderDockablePlugin):
         """Reimplement analyze method."""        
         if self.dockwidget:
             self.switch_to_plugin()
-        self.widget.analyze(
-            filename=filename,
-            use_colors=self.get_option('use_colors', True))
+        self.widget.analyze(filename=filename)
