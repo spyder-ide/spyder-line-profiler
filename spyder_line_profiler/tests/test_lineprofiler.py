@@ -40,17 +40,6 @@ def foo():
 foo()"""
 
 
-class MockPythonModulesComboBox(PythonModulesComboBox):
-   
-    def __init__(self, parent, adjust_to_contents=False, id_=None, **kwargs):
-        try:
-            PythonModulesComboBox.__init__(self, parent=parent, id_=id_,
-                                   adjust_to_contents=adjust_to_contents)
-        except:
-            PythonModulesComboBox.__init__(self, parent=parent,
-                                       adjust_to_contents=adjust_to_contents)
-
-
         
 def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
     """Run profiler on simple script and check that results are okay."""
@@ -62,7 +51,6 @@ def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
 
     MockQMessageBox = Mock()
 
-    spyder_line_profiler.spyder.widgets.PythonModulesComboBox = MockPythonModulesComboBox
     widget = SpyderLineProfilerWidget(None)
     widget.setup()
     qtbot.addWidget(widget)
