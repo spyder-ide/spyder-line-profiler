@@ -41,7 +41,7 @@ jobs:
         shell: bash -l {0}
         run: |
           conda install nomkl -y -q
-          conda install --file requirements/tests.txt -y -q
+          pip install -r requirements/tests.txt
       - name: Install Spyder version via PIP
         shell: bash -l {0}
         run: |
