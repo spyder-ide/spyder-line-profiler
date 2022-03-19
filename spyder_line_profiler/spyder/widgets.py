@@ -68,22 +68,19 @@ def is_lineprofiler_installed():
     return (programs.is_module_installed('line_profiler')
             and programs.find_program('kernprof') is not None)
 
-
-
-
-class PythonModulesComboBox(PythonModulesComboBox):
+class PatchPythonModulesComboBox(PythonModulesComboBox):
     # for backwards compatibility to Spyder<5.1.5, where no id_ is used
     def __init__(self, parent, adjust_to_contents=False, id_=None, **kwargs):
         try:
             PythonModulesComboBox.__init__(self, parent=parent, id_=id_,
                                    adjust_to_contents=adjust_to_contents)
-            
-        except:
+        except Exception:
             PythonModulesComboBox.__init__(self, parent=parent,
                                        adjust_to_contents=adjust_to_contents)
 
 
 
+    
 class TreeWidgetItem(QTreeWidgetItem):
     """
     An extension of QTreeWidgetItem that replaces the sorting behaviour
@@ -185,7 +182,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         self.started_time = None
         
         # Widgets
-        self.filecombo = PythonModulesComboBox(
+        self.filecombo = PatchPythonModulesComboBox(
             self, id_= SpyderLineProfilerWidgetMainToolbarItems.FileCombo)
         self.datatree = LineProfilerDataTree(self)
         self.datelabel = QLabel()
@@ -204,15 +201,16 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         
     # --- PluginMainWidget API
     # ------------------------------------------------------------------------
+    
+    def create_stretcher(self, id_):
+        # for backwards compatibility to Spyder<5.1.5, where no id_ is used
+        try:
+            return PluginMainWidget.create_stretcher(self, id_)
+        except Exception:
+            return PluginMainWidget.create_stretcher(self)
+    
     def get_title(self):
         return _("Line Profiler")
-
-    def create_stretcher(self, id_):
-        try: 
-            PluginMainWidget.create_stretcher(self, id_)
-        except:
-            # for backwards compatibility to Spyder<5.1.5, where no id_ is used
-            PluginMainWidget.create_stretcher(self)
 
     def get_focus_widget(self):
         pass
@@ -244,21 +242,21 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             SpyderLineProfilerWidgetActions.ShowOutput,
             text=_("Show Result"),
             tip=_("Show program's output"),
-            icon=qta.icon("fa.file-text", color=ima.MAIN_FG_COLOR),
+            icon=self.create_icon('log'),
             triggered=self.show_log,
         )
         self.collapse_action = self.create_action(
             SpyderLineProfilerWidgetActions.Collapse,
             text=_("Collaps"),
             tip=_('Collapse all'),
-            icon=qta.icon("mdi.arrow-collapse-all", color=ima.MAIN_FG_COLOR),
+            icon=self.create_icon('collapse'),
             triggered=lambda dD=-1: self.datatree.collapseAll(),
         )
         self.expand_action = self.create_action(
             SpyderLineProfilerWidgetActions.Expand,
             text=_("Expand"),
             tip=_('Expand all'),
-            icon=qta.icon("mdi.arrow-expand-all", color=ima.MAIN_FG_COLOR),
+            icon=self.create_icon('expand'),
             triggered=lambda dD=-1: self.datatree.expandAll(),
         )
         self.save_action = self.create_action(
@@ -272,7 +270,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             SpyderLineProfilerWidgetActions.Clear,
             text=_("Clear output"),
             tip=_('Clear'),
-            icon=qta.icon("fa.trash", color=ima.MAIN_FG_COLOR),
+            icon=self.create_icon('editdelete'),
             triggered=self.clear_data,
         )
 

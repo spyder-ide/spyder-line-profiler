@@ -28,6 +28,8 @@ jobs:
         with:
            activate-environment: test
            auto-update-conda: true
+           channels: conda-forge
+           channel-priority: strict
            auto-activate-base: false
            python-version: ${{ matrix.PYTHON_VERSION }}
       - name: Install package dependencies
