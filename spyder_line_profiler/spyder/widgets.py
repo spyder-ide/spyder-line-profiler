@@ -69,7 +69,21 @@ def is_lineprofiler_installed():
             and programs.find_program('kernprof') is not None)
 
 
-    
+
+
+class PythonModulesComboBox(PythonModulesComboBox):
+    # for backwards compatibility to Spyder<5.1.5, where no id_ is used
+    def __init__(self, parent, adjust_to_contents=False, id_=None, **kwargs):
+        try:
+            PythonModulesComboBox.__init__(self, parent=parent, id_=id_,
+                                   adjust_to_contents=adjust_to_contents)
+            
+        except:
+            PythonModulesComboBox.__init__(self, parent=parent,
+                                       adjust_to_contents=adjust_to_contents)
+
+
+
 class TreeWidgetItem(QTreeWidgetItem):
     """
     An extension of QTreeWidgetItem that replaces the sorting behaviour
@@ -192,6 +206,13 @@ class SpyderLineProfilerWidget(PluginMainWidget):
     # ------------------------------------------------------------------------
     def get_title(self):
         return _("Line Profiler")
+
+    def create_stretcher(self, id_):
+        try: 
+            PluginMainWidget.create_stretcher(self, id_)
+        except:
+            # for backwards compatibility to Spyder<5.1.5, where no id_ is used
+            PluginMainWidget.create_stretcher(self)
 
     def get_focus_widget(self):
         pass
