@@ -68,18 +68,6 @@ def is_lineprofiler_installed():
     return (programs.is_module_installed('line_profiler')
             and programs.find_program('kernprof') is not None)
 
-class PatchPythonModulesComboBox(PythonModulesComboBox):
-    # for backwards compatibility to Spyder<5.1.5, where no id_ is used
-    def __init__(self, parent, adjust_to_contents=False, id_=None, **kwargs):
-        try:
-            PythonModulesComboBox.__init__(self, parent=parent, id_=id_,
-                                   adjust_to_contents=adjust_to_contents)
-        except Exception:
-            PythonModulesComboBox.__init__(self, parent=parent,
-                                       adjust_to_contents=adjust_to_contents)
-
-
-
     
 class TreeWidgetItem(QTreeWidgetItem):
     """
@@ -182,7 +170,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         self.started_time = None
         
         # Widgets
-        self.filecombo = PatchPythonModulesComboBox(
+        self.filecombo = PythonModulesComboBox(
             self, id_= SpyderLineProfilerWidgetMainToolbarItems.FileCombo)
         self.datatree = LineProfilerDataTree(self)
         self.datelabel = QLabel()
@@ -201,13 +189,6 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         
     # --- PluginMainWidget API
     # ------------------------------------------------------------------------
-    
-    def create_stretcher(self, id_):
-        # for backwards compatibility to Spyder<5.1.5, where no id_ is used
-        try:
-            return PluginMainWidget.create_stretcher(self, id_)
-        except Exception:
-            return PluginMainWidget.create_stretcher(self)
     
     def get_title(self):
         return _("Line Profiler")
