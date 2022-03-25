@@ -90,7 +90,7 @@ class SpyderLineProfiler(SpyderDockablePlugin):
         mainmenu = self.get_plugin(Plugins.MainMenu)
 
         mainmenu.remove_item_from_application_menu(
-            SpyderLineProfilerActions.ProfileCurrentFile,
+            SpyderLineProfilerActions.Run,
             menu_id=ApplicationMenus.Run
         )    
         
