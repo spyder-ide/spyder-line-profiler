@@ -40,9 +40,9 @@ class SpyderLineProfiler(SpyderDockablePlugin):
     """
 
     NAME = "spyder_line_profiler"
-    REQUIRES = [Plugins.Editor]
+    REQUIRES = [Plugins.Editor, Plugins.Help]
     OPTIONAL = [Plugins.MainMenu]
-    TABIFY = [Plugins.Editor]
+    TABIFY = [Plugins.Help]
     WIDGET_CLASS = SpyderLineProfilerWidget
     CONF_SECTION = NAME
     CONF_WIDGET_CLASS = SpyderLineProfilerConfigPage
