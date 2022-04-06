@@ -42,7 +42,7 @@ class SpyderLineProfiler(SpyderDockablePlugin):
     NAME = "spyder_line_profiler"
     REQUIRES = [Plugins.Editor]
     OPTIONAL = [Plugins.MainMenu]
-    TABIFY = Plugins.Help
+    TABIFY = [Plugins.Editor]
     WIDGET_CLASS = SpyderLineProfilerWidget
     CONF_SECTION = NAME
     CONF_WIDGET_CLASS = SpyderLineProfilerConfigPage
@@ -90,7 +90,7 @@ class SpyderLineProfiler(SpyderDockablePlugin):
         mainmenu = self.get_plugin(Plugins.MainMenu)
 
         mainmenu.remove_item_from_application_menu(
-            SpyderLineProfilerActions.Run,
+            SpyderLineProfilerActions.ProfileCurrentFile,
             menu_id=ApplicationMenus.Run
         )    
         
