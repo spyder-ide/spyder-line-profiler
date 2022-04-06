@@ -48,7 +48,7 @@ class SpyderLineProfiler(SpyderDockablePlugin):
     CONF_WIDGET_CLASS = SpyderLineProfilerConfigPage
 
     # --- Signals
-    # sig_finished = Signal()
+    sig_finished = Signal()
     """This signal is emitted to inform the profile profiling has finished."""
 
     # --- SpyderDockablePlugin API
@@ -65,7 +65,7 @@ class SpyderLineProfiler(SpyderDockablePlugin):
 
     def on_initialize(self):
         self.widget = self.get_widget()
-        # self.widget.sig_finished.connect(self.sig_finished)
+        self.widget.sig_finished.connect(self.sig_finished)
         
         run_action = self.create_action(
                         SpyderLineProfilerActions.Run,
