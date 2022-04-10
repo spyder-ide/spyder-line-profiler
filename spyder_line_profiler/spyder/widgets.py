@@ -362,7 +362,8 @@ class SpyderLineProfilerWidget(PluginMainWidget):
 
     def show_log(self):
         if self.output:
-            editor = TextEditor(self.output, title=_("Line profiler output"))
+            editor = TextEditor(self.output, title=_("Line profiler output"),
+                                                    readonly=True, parent=self)
             
             # Call .show() to dynamically resize editor;
             # see spyder-ide/spyder#12202
@@ -373,7 +374,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         if self.error_output:
             editor = TextEditor(self.error_output,
                                 title=_("Line profiler output"),
-                                readonly=True)
+                                readonly=True, parent=self)
             self.datelabel.setText(_('Profiling did not complete (error)'))
             # Call .show() to dynamically resize editor;
             # see spyder-ide/spyder#12202
@@ -580,7 +581,7 @@ class LineProfilerDataTree(QTreeWidget):
         self.setColumnCount(len(self.header_list))
         self.setHeaderLabels(self.header_list)
         self.clear()
-        self.itemClicked.connect(self.onItemClick)
+        self.itemClicked.connect(self.on_item_clicked)
 
     def show_tree(self):
         """Populate the tree with line profiler data and display it."""
@@ -655,8 +656,7 @@ class LineProfilerDataTree(QTreeWidget):
 
             # Fill dict
             self.stats[func_info] = [func_stats, func_total_time]
-            
-       
+
     def fill_item(self, item, filename, line_no, code, time, percent, perhit,
                   hits):
         item.setData(COL_POS, Qt.UserRole, (osp.normpath(filename), line_no))
@@ -771,7 +771,7 @@ class LineProfilerDataTree(QTreeWidget):
                 # Monospace font for code
                 line_item.setFont(COL_LINE, monospace_font)
                 
-    def onItemClick(self, item):
+    def on_item_clicked(self, item):
         data = item.data(COL_POS, Qt.UserRole)
         if data is None or len(data)<2: return
         filename, line_no = data
