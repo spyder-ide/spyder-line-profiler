@@ -5,7 +5,7 @@
 # Licensed under the terms of the MIT license
 # ----------------------------------------------------------------------------
 """
-Spyder Line Profiler 5 Main Widget.
+Spyder Line Profiler Main Widget.
 """
 # Standard library imports
 from __future__ import with_statement
@@ -63,7 +63,7 @@ locale_codec = QTextCodec.codecForLocale()
 
 def is_lineprofiler_installed():
     """
-    Checks if the program and the library for line_profiler is installed.
+    Check if the program and the library for line_profiler is installed.
     """
     return (programs.is_module_installed('line_profiler')
             and programs.find_program('kernprof') is not None)
@@ -111,26 +111,32 @@ class SpyderLineProfilerWidgetActions:
     SaveData = 'save_data_action'
     ShowOutput = 'show_output_action'
     Stop = 'stop_action'
-    
+
+
 class SpyderLineProfilerWidgetMainToolbarSections:
     Main = 'main_section'
     ExpandCollaps = 'expand_collaps_section'
     ShowOutput = 'show_output_section'
-    
+
+
 class SpyderLineProfilerWidgetToolbars:
     Information = 'information_toolbar'
-    
+
+
 class SpyderLineProfilerWidgetMainToolbarItems:
     FileCombo = 'file_combo'
-    
+
+
 class SpyderLineProfilerWidgetInformationToolbarSections:
     Main = 'main_section'
-    
+
+
 class SpyderLineProfilerWidgetInformationToolbarItems:
     Stretcher1 = 'stretcher_1'
     Stretcher2 = 'stretcher_2'
     DateLabel = 'date_label'  
-  
+
+
 class SpyderLineProfilerWidget(PluginMainWidget):
 
     # PluginMainWidget class constants
@@ -173,11 +179,11 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         self.filecombo = PythonModulesComboBox(
             self, id_= SpyderLineProfilerWidgetMainToolbarItems.FileCombo)
         self.datatree = LineProfilerDataTree(self)
-        self.datelabel = QLabel()
+        self.datelabel = QLabel(self)
         self.datelabel.ID = SpyderLineProfilerWidgetInformationToolbarItems.DateLabel
         self.datelabel.setText(_('Please select a file to profile, with '
                                  'added @profile decorators for functions'))
-        self.timer = QTimer()
+        self.timer = QTimer(self)
 
         layout = QVBoxLayout()
         layout.addWidget(self.datatree)
@@ -189,7 +195,6 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         
     # --- PluginMainWidget API
     # ------------------------------------------------------------------------
-    
     def get_title(self):
         return _("Line Profiler")
 
@@ -270,6 +275,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
                 toolbar=toolbar,
                 section=SpyderLineProfilerWidgetMainToolbarSections.Main,
             )
+
         # Secondary Toolbar
         secondary_toolbar = self.create_toolbar(
             SpyderLineProfilerWidgetToolbars.Information)
@@ -287,8 +293,6 @@ class SpyderLineProfilerWidget(PluginMainWidget):
                 toolbar=secondary_toolbar,
                 section=SpyderLineProfilerWidgetInformationToolbarSections.Main,
             )
-
-        
         
         if not is_lineprofiler_installed():
             for widget in (self.datatree, self.filecombo, self.log_action,
@@ -482,7 +486,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         self.timer.stop()
         self.set_running_state(False)
         self.output = self.error_output + self.output
-        if not self.output=='aborted':
+        if not self.output == 'aborted':
             elapsed = str(datetime.now() - self.started_time).split(".")[0]
             self.show_data(justanalyzed=True)
             self.datelabel.setText(_(f'Profiling finished after {elapsed}'))
@@ -552,15 +556,12 @@ class SpyderLineProfilerWidget(PluginMainWidget):
                 
             self.datelabel.setText(_(f"Saved results to {filename}"))
         
-        
     def update_actions(self):
         pass
 
     @on_conf_change
     def on_section_conf_change(self, section):
         pass
-
-
     
     
 class LineProfilerDataTree(QTreeWidget):

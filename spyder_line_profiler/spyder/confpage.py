@@ -4,16 +4,21 @@
 #
 # Licensed under the terms of the MIT license
 # ----------------------------------------------------------------------------
+
 """
 Spyder Line Profiler 5 Preferences Page.
 """
+
 # Third party imports
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QGroupBox, QLabel, QVBoxLayout
-
 from spyder.api.preferences import PluginConfigPage
 from spyder.api.translations import get_translation
+
+# Local imports
 from .widgets import SpyderLineProfilerWidget
+
+# Localization
 _ = get_translation("spyder_line_profiler.spyder")
 
 

@@ -17,10 +17,7 @@ from spyder.utils.qthelpers import qapplication
 MAIN_APP = qapplication() 
 
 # Local imports
-import spyder
-import spyder_line_profiler
 from spyder_line_profiler.spyder.widgets import SpyderLineProfilerWidget
-from spyder_line_profiler.spyder.widgets import PythonModulesComboBox
 
 
 try:
@@ -38,7 +35,6 @@ def foo():
     for k in range(100):
         xs = xs + ['x']
 foo()"""
-
 
         
 def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
