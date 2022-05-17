@@ -10,16 +10,11 @@
 import os
 
 # Third party imports
-from pytestqt import qtbot
 from qtpy.QtCore import Qt
 from unittest.mock import Mock
 
-from spyder.utils.qthelpers import qapplication
-# MAIN_APP = qapplication() 
-
 # Local imports
 from spyder_line_profiler.spyder.widgets import SpyderLineProfilerWidget
-
 
 
 TEST_SCRIPT = \
@@ -33,7 +28,7 @@ def foo():
 foo()"""
 
         
-def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
+def test_profile_and_display_results(qtbot, tmpdir):
     """Run profiler on simple script and check that results are okay."""
     os.chdir(tmpdir.strpath)
     testfilename = tmpdir.join('test_foo.py').strpath
