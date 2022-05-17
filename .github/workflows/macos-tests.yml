@@ -19,15 +19,17 @@ jobs:
     strategy:
       fail-fast: false 
       matrix:
-        PYTHON_VERSION: ['3.6', '3.7', '3.8']
+        PYTHON_VERSION: ['3.7', '3.8', '3.9']
     steps:
       - name: Checkout branch
         uses: actions/checkout@v2
       - name: Install Conda
-        uses: goanpeca/setup-miniconda@v1
+        uses: conda-incubator/setup-miniconda@v2
         with:
            activate-environment: test
            auto-update-conda: true
+           channels: conda-forge
+           channel-priority: strict
            auto-activate-base: false
            python-version: ${{ matrix.PYTHON_VERSION }} 
       - name: Install package dependencies
@@ -37,7 +39,7 @@ jobs:
         shell: bash -l {0}
         run: |
           conda install nomkl -y -q
-          conda install -c spyder-ide --file requirements/tests.txt -y -q
+          conda install --file requirements/tests.txt -y -q
       - name: Install Package
         shell: bash -l {0}
         run: pip install --no-deps -e .
@@ -48,7 +50,7 @@ jobs:
           conda list
       - name: Run tests
         shell: bash -l {0}
-        run: pytest spyder_line_profiler --cov=spyder_line_profiler -x -vv
+        run: pytest --cov=spyder_line_profiler -x -vv
         timeout-minutes: 10
       - name: Upload coverage to Codecov
         shell: bash -l {0}

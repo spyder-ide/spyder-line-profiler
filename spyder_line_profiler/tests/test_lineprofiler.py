@@ -10,19 +10,11 @@
 import os
 
 # Third party imports
-from pytestqt import qtbot
 from qtpy.QtCore import Qt
-
-from spyder.utils.qthelpers import qapplication
-MAIN_APP = qapplication() 
+from unittest.mock import Mock
 
 # Local imports
-from spyder_line_profiler.widgets.lineprofiler import LineProfilerWidget
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from mock import Mock  # Python 2
+from spyder_line_profiler.spyder.widgets import SpyderLineProfilerWidget
 
 
 TEST_SCRIPT = \
@@ -34,8 +26,9 @@ def foo():
     for k in range(100):
         xs = xs + ['x']
 foo()"""
+
         
-def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
+def test_profile_and_display_results(qtbot, tmpdir):
     """Run profiler on simple script and check that results are okay."""
     os.chdir(tmpdir.strpath)
     testfilename = tmpdir.join('test_foo.py').strpath
@@ -44,10 +37,9 @@ def test_profile_and_display_results(qtbot, tmpdir, monkeypatch):
         f.write(TEST_SCRIPT)
 
     MockQMessageBox = Mock()
-    monkeypatch.setattr('spyder_line_profiler.widgets.lineprofiler.QMessageBox',
-                        MockQMessageBox)
 
-    widget = LineProfilerWidget(None)
+    widget = SpyderLineProfilerWidget(None)
+    widget.setup()
     qtbot.addWidget(widget)
     with qtbot.waitSignal(widget.sig_finished, timeout=10000, raising=True):
         widget.analyze(testfilename)
