@@ -12,18 +12,14 @@ import os
 # Third party imports
 from pytestqt import qtbot
 from qtpy.QtCore import Qt
+from unittest.mock import Mock
 
 from spyder.utils.qthelpers import qapplication
-MAIN_APP = qapplication() 
+# MAIN_APP = qapplication() 
 
 # Local imports
 from spyder_line_profiler.spyder.widgets import SpyderLineProfilerWidget
 
-
-try:
-    from unittest.mock import Mock
-except ImportError:
-    from mock import Mock  # Python 2
 
 
 TEST_SCRIPT = \
