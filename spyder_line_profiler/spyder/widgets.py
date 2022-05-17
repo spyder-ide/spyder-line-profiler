@@ -8,7 +8,6 @@
 Spyder Line Profiler Main Widget.
 """
 # Standard library imports
-from __future__ import with_statement
 import hashlib
 import inspect
 import linecache
@@ -19,14 +18,12 @@ import time
 from datetime import datetime
 
 # Third party imports
-from qtpy.QtWidgets import QHBoxLayout, QLabel
 from qtpy.QtGui import QBrush, QColor, QFont
 from qtpy.QtCore import (QByteArray, QProcess, Qt, QTextCodec,
                          QProcessEnvironment, Signal, QTimer)
-from qtpy.QtWidgets import (QMessageBox, QVBoxLayout,
+from qtpy.QtWidgets import (QMessageBox, QVBoxLayout, QLabel,
                             QTreeWidget, QTreeWidgetItem, QApplication)
 from qtpy.compat import getopenfilename, getsavefilename
-import qtawesome as qta
 
 # Spyder imports
 
@@ -39,8 +36,7 @@ from spyder.widgets.comboboxes import PythonModulesComboBox
 from spyder.utils import programs
 from spyder.utils.misc import add_pathlist_to_PYTHONPATH, getcwd_or_home
 from spyder.plugins.run.widgets import get_run_configuration
-from spyder.py3compat import to_text_string, getcwd, pickle
-from spyder.utils.icon_manager import ima
+from spyder.py3compat import to_text_string, pickle
 
 # Localization
 _ = get_translation("spyder")
@@ -134,7 +130,7 @@ class SpyderLineProfilerWidgetInformationToolbarSections:
 class SpyderLineProfilerWidgetInformationToolbarItems:
     Stretcher1 = 'stretcher_1'
     Stretcher2 = 'stretcher_2'
-    DateLabel = 'date_label'  
+    DateLabel = 'date_label'
 
 
 class SpyderLineProfilerWidget(PluginMainWidget):
@@ -177,7 +173,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         
         # Widgets
         self.filecombo = PythonModulesComboBox(
-            self, id_= SpyderLineProfilerWidgetMainToolbarItems.FileCombo)
+            self, id_=SpyderLineProfilerWidgetMainToolbarItems.FileCombo)
         self.datatree = LineProfilerDataTree(self)
         self.datelabel = QLabel(self)
         self.datelabel.ID = SpyderLineProfilerWidgetInformationToolbarItems.DateLabel
@@ -220,7 +216,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         self.browse_action = self.create_action(
             SpyderLineProfilerWidgetActions.Browse,
             text=_("Open Script"),
-            tip=_('Select Python script'),            
+            tip=_('Select Python script'),
             icon=self.create_icon('fileopen'),
             triggered=self.select_file,
         )
@@ -268,7 +264,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         
         # Main Toolbar
         toolbar = self.get_main_toolbar()
-        for item in [self.filecombo, self.browse_action, self.start_action, 
+        for item in [self.filecombo, self.browse_action, self.start_action,
                      self.stop_action]:
             self.add_item_to_toolbar(
                 item,
@@ -305,9 +301,8 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             self.datelabel.setText(text)
             self.datelabel.setOpenExternalLinks(True)
         else:
-            pass  
+            pass
 
-        
     def analyze(self, filename=None, wdir=None, args=None, pythonpath=None,
                 use_colors=True):
         self.use_colors = use_colors
@@ -349,12 +344,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
 
     def select_file(self):
         self.redirect_stdio.emit(False)
-        try:    
-            curr_script = self.editor.get_current_filename()
-        except:
-            curr_script = None
-            
-        pwd = curr_script if curr_script else getcwd_or_home()
+        pwd = getcwd_or_home()
         
         filename, _selfilter = getopenfilename(
             self, _("Select Python script"), pwd,
@@ -367,7 +357,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
     def show_log(self):
         if self.output:
             editor = TextEditor(self.output, title=_("Line profiler output"),
-                                                    readonly=True, parent=self)
+                                readonly=True, parent=self)
             
             # Call .show() to dynamically resize editor;
             # see spyder-ide/spyder#12202
@@ -536,12 +526,12 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             self.datelabel.setText(_("Nothing to save"))
             return
         
-        title = _( "Save line profiler result")
+        title = _("Save line profiler result")
         curr_filename = self.filecombo.currentText()
         filename, _selfilter = getsavefilename(
             self,
             title,
-             f'{curr_filename}_lineprof.txt',
+            f'{curr_filename}_lineprof.txt',
             _("LineProfiler result") + " (*.txt)",
         )
 
@@ -549,9 +539,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             with open(filename, 'w') as f:
                 # for some weird reason, everything is double spaced on Win
                 results = self.output
-                print(results)
-                results  = results.replace('\r', '')
-                print(results.encode())
+                results = results.replace('\r', '')
                 f.write(results)
                 
             self.datelabel.setText(_(f"Saved results to {filename}"))
@@ -774,7 +762,8 @@ class LineProfilerDataTree(QTreeWidget):
                 
     def on_item_clicked(self, item):
         data = item.data(COL_POS, Qt.UserRole)
-        if data is None or len(data)<2: return
+        if data is None or len(data) < 2:
+            return
         filename, line_no = data
         self.sig_edit_goto_requested.emit(filename, line_no, '')
 
@@ -783,7 +772,8 @@ class LineProfilerDataTree(QTreeWidget):
 # Tests
 # =============================================================================
 
-profile = lambda  x:x # dummy profile wrapper to make script load externally
+profile = lambda x: x  # dummy profile wrapper to make script load externally
+
 
 @profile
 def primes(n):
