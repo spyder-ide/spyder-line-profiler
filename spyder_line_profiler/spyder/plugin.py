@@ -33,7 +33,7 @@ _ = get_translation("spyder_line_profiler.spyder")
 class SpyderLineProfilerActions:
     # Triggers
     Run = 'run_profiler_action'
-    
+
 
 class SpyderLineProfiler(SpyderDockablePlugin):
     """
@@ -71,7 +71,7 @@ class SpyderLineProfiler(SpyderDockablePlugin):
     def on_initialize(self):
         self.widget = self.get_widget()
         self.widget.sig_finished.connect(self.sig_finished)
-        
+
         run_action = self.create_action(
             SpyderLineProfilerActions.Run,
             text=_("Run line profiler"),
@@ -82,14 +82,14 @@ class SpyderLineProfiler(SpyderDockablePlugin):
             register_shortcut=True,
         )
         run_action.setEnabled(is_lineprofiler_installed())
-        
+
     @on_plugin_available(plugin=Plugins.MainMenu)
     def on_main_menu_available(self):
         mainmenu = self.get_plugin(Plugins.MainMenu)
         run_action = self.get_action(SpyderLineProfilerActions.Run)
         mainmenu.add_item_to_application_menu(
             run_action, menu_id=ApplicationMenus.Run)
-        
+
     @on_plugin_teardown(plugin=Plugins.MainMenu)
     def on_main_menu_teardown(self):
         mainmenu = self.get_plugin(Plugins.MainMenu)
@@ -110,7 +110,7 @@ class SpyderLineProfiler(SpyderDockablePlugin):
 
     def on_close(self, cancellable=True):
         return True
-        
+
     # --- Public API
     # ------------------------------------------------------------------------
     def update_pythonpath(self):
@@ -122,14 +122,14 @@ class SpyderLineProfiler(SpyderDockablePlugin):
         PYTHONPATH in Spyder.
         """
         self.widget.spyder_pythonpath = self.main.get_spyder_pythonpath()
-        
+
     def run_lineprofiler(self):
         """Run line profiler."""
         editor = self.get_plugin(Plugins.Editor)
         if editor.save():
             self.switch_to_plugin()
             self.analyze(editor.get_current_filename())
-        
+
         self.analyze(self.main.editor.get_current_filename())
 
     def analyze(self, filename):
