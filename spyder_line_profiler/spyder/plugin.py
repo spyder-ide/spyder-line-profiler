@@ -9,8 +9,11 @@
 Spyder Line Profiler 5 Plugin.
 """
 
+# Standard library imports
+import os.path as osp
+
 # Third-party imports
-from qtpy.QtCore import Signal
+from qtpy.QtCore import Qt, Signal
 from qtpy.QtGui import QIcon
 from spyder.api.plugins import Plugins, SpyderDockablePlugin
 from spyder.api.translations import get_translation
@@ -21,12 +24,10 @@ from spyder.plugins.mainmenu.api import ApplicationMenus
 # Local imports
 from spyder_line_profiler.spyder.confpage import SpyderLineProfilerConfigPage
 from spyder_line_profiler.spyder.widgets import SpyderLineProfilerWidget
-from spyder_line_profiler.spyder.widgets import SpyderLineProfilerWidgetActions
 from spyder_line_profiler.spyder.widgets import is_lineprofiler_installed
 
 # Localization
 _ = get_translation("spyder_line_profiler.spyder")
-
 
 
 class SpyderLineProfilerActions:
@@ -40,12 +41,13 @@ class SpyderLineProfiler(SpyderDockablePlugin):
     """
 
     NAME = "spyder_line_profiler"
-    REQUIRES = [Plugins.Editor]
+    REQUIRES = [Plugins.Preferences, Plugins.Editor]
     OPTIONAL = [Plugins.MainMenu]
     TABIFY = [Plugins.Help]
     WIDGET_CLASS = SpyderLineProfilerWidget
     CONF_SECTION = NAME
     CONF_WIDGET_CLASS = SpyderLineProfilerConfigPage
+    CONF_FILE = True
 
     # --- Signals
     sig_finished = Signal()
@@ -61,7 +63,10 @@ class SpyderLineProfiler(SpyderDockablePlugin):
         return _("Line profiler display for Spyder")
 
     def get_icon(self):
-        return QIcon('./data/images/spyder.line_profiler.png')
+        path = osp.join(
+            osp.dirname(osp.dirname(__file__)),
+            'data', 'images', 'spyder.line_profiler.png')
+        return QIcon(path)
 
     def on_initialize(self):
         self.widget = self.get_widget()
@@ -73,8 +78,9 @@ class SpyderLineProfiler(SpyderDockablePlugin):
             tip=_("Run line profiler"),
             icon=self.get_icon(),
             triggered=self.run_lineprofiler,
+            context=Qt.ApplicationShortcut,
             register_shortcut=True,
-        )   
+        )
         run_action.setEnabled(is_lineprofiler_installed())
         
     @on_plugin_available(plugin=Plugins.MainMenu)
@@ -88,10 +94,15 @@ class SpyderLineProfiler(SpyderDockablePlugin):
     def on_main_menu_teardown(self):
         mainmenu = self.get_plugin(Plugins.MainMenu)
         mainmenu.remove_item_from_application_menu(
-            SpyderLineProfilerActions.ProfileCurrentFile,
+            SpyderLineProfilerActions.Run,
             menu_id=ApplicationMenus.Run
-        )    
-        
+        )
+
+    @on_plugin_available(plugin=Plugins.Preferences)
+    def on_preferences_available(self):
+        preferences = self.get_plugin(Plugins.Preferences)
+        preferences.register_plugin_preferences(self)
+
     def check_compatibility(self):
         valid = True
         message = ""  # Note: Remember to use _("") to localize the string
