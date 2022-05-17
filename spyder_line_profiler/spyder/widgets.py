@@ -64,7 +64,7 @@ def is_lineprofiler_installed():
     return (programs.is_module_installed('line_profiler')
             and programs.find_program('kernprof') is not None)
 
-    
+
 class TreeWidgetItem(QTreeWidgetItem):
     """
     An extension of QTreeWidgetItem that replaces the sorting behaviour
@@ -145,7 +145,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
     """
     This signal will request to open a file in a given row and column
     using a code editor.
-    
+
     Parameters
     ----------
     path: str
@@ -170,7 +170,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         self.spyder_pythonpath = None
         self.process = None
         self.started_time = None
-        
+
         # Widgets
         self.filecombo = PythonModulesComboBox(
             self, id_=SpyderLineProfilerWidgetMainToolbarItems.FileCombo)
@@ -184,11 +184,11 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         layout = QVBoxLayout()
         layout.addWidget(self.datatree)
         self.setLayout(layout)
-        
+
         # Signals
         self.datatree.sig_edit_goto_requested.connect(
             self.sig_edit_goto_requested)
-        
+
     # --- PluginMainWidget API
     # ------------------------------------------------------------------------
     def get_title(self):
@@ -198,7 +198,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         pass
 
     def setup(self):
-        
+
         self.start_action = self.create_action(
             SpyderLineProfilerWidgetActions.Run,
             text=_("Profile by line"),
@@ -261,7 +261,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         self.clear_action.setEnabled(False)
         self.log_action.setEnabled(False)
         self.save_action.setEnabled(False)
-        
+
         # Main Toolbar
         toolbar = self.get_main_toolbar()
         for item in [self.filecombo, self.browse_action, self.start_action,
@@ -289,7 +289,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
                 toolbar=secondary_toolbar,
                 section=SpyderLineProfilerWidgetInformationToolbarSections.Main,
             )
-        
+
         if not is_lineprofiler_installed():
             for widget in (self.datatree, self.filecombo, self.log_action,
                            self.start_action, self.stop_action, self.browse_action,
@@ -319,7 +319,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             else:
                 self.filecombo.setCurrentIndex(index)
             self.filecombo.selected()
-            
+
         if self.filecombo.is_valid():
             filename = to_text_string(self.filecombo.currentText())
             runconf = get_run_configuration(filename)
@@ -345,12 +345,12 @@ class SpyderLineProfilerWidget(PluginMainWidget):
     def select_file(self):
         self.redirect_stdio.emit(False)
         pwd = getcwd_or_home()
-        
+
         filename, _selfilter = getopenfilename(
             self, _("Select Python script"), pwd,
             _("Python scripts")+" (*.py ; *.pyw)")
         self.redirect_stdio.emit(False)
-        
+
         if filename:
             self.analyze(filename)
 
@@ -358,7 +358,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         if self.output:
             editor = TextEditor(self.output, title=_("Line profiler output"),
                                 readonly=True, parent=self)
-            
+
             # Call .show() to dynamically resize editor;
             # see spyder-ide/spyder#12202
             editor.show()
@@ -374,7 +374,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             # see spyder-ide/spyder#12202
             editor.show()
             editor.exec_()
-    
+
     def update_timer(self):
         elapsed = str(datetime.now() - self.started_time).split(".")[0]
         self.datelabel.setText(_(f'Profiling, please wait... elapsed: {elapsed}'))
@@ -393,14 +393,14 @@ class SpyderLineProfilerWidget(PluginMainWidget):
                 args = []
         if pythonpath is None:
             pythonpath = self._last_pythonpath
-            
+
         self._last_wdir = wdir
         self._last_args = args
         self._last_pythonpath = pythonpath
 
         self.datelabel.setText(_('Profiling starting up, please wait...'))
         self.started_time = datetime.now()
-        
+
         self.process = QProcess(self)
         self.process.setProcessChannelMode(QProcess.SeparateChannels)
         self.process.setWorkingDirectory(wdir)
@@ -482,7 +482,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             self.datelabel.setText(_(f'Profiling finished after {elapsed}'))
         self.show_errorlog()  # If errors occurred, show them.
         self.sig_finished.emit()
-        
+
     def kill_if_running(self):
         self.datelabel.setText(_('Profiling aborted.'))
         if self.process is not None:
@@ -490,14 +490,14 @@ class SpyderLineProfilerWidget(PluginMainWidget):
                 self.process.kill()
                 self.output = 'aborted'
                 self.process.waitForFinished()
-                
+
     def clear_data(self):
         self.datatree.clear()
         self.clear_action.setEnabled(False)
         self.log_action.setEnabled(False)
         self.save_action.setEnabled(False)
         self.output = ''
-        
+
     def show_data(self, justanalyzed=False):
         if not justanalyzed:
             self.clear_data()
@@ -519,13 +519,13 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         date_text = text_style % time.strftime("%d %b %Y %H:%M",
                                                time.localtime())
         self.datelabel.setText(date_text)
-        
+
     def save_data(self):
         """Save data."""
         if not self.output:
             self.datelabel.setText(_("Nothing to save"))
             return
-        
+
         title = _("Save line profiler result")
         curr_filename = self.filecombo.currentText()
         filename, _selfilter = getsavefilename(
@@ -541,24 +541,24 @@ class SpyderLineProfilerWidget(PluginMainWidget):
                 results = self.output
                 results = results.replace('\r', '')
                 f.write(results)
-                
+
             self.datelabel.setText(_(f"Saved results to {filename}"))
-        
+
     def update_actions(self):
         pass
 
     @on_conf_change
     def on_section_conf_change(self, section):
         pass
-    
-    
+
+
 class LineProfilerDataTree(QTreeWidget):
     """
     Convenience tree widget (with built-in model)
     to store and view line profiler data.
     """
     sig_edit_goto_requested = Signal(str, int, str)
-    
+
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
         self.header_list = [
@@ -759,7 +759,7 @@ class LineProfilerDataTree(QTreeWidget):
 
                 # Monospace font for code
                 line_item.setFont(COL_LINE, monospace_font)
-                
+
     def on_item_clicked(self, item):
         data = item.data(COL_POS, Qt.UserRole)
         if data is None or len(data) < 2:
