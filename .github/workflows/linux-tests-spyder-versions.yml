@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false 
       matrix:
-        SPYDER_VERSION: ['5.0.0', '5.0.5', '5.1.0', '5.1.5', '5.2.0', '']
+        SPYDER_VERSION: ['5.0.0', '5.0.5', '5.1.0', '5.1.5', '5.2.0', '5.3.0', '']
     steps:
       - name: Checkout branch
         uses: actions/checkout@v2
