@@ -10,7 +10,7 @@ on:
 
 jobs:
   linux:
-    name: Linux Py37 Spyder Version:
+    name: Linux Py37 Spyder Version
     runs-on: ubuntu-latest
     env:
       CI: True
