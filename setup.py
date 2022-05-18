@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright © 2013 Spyder Project Contributors
+# Copyright © 2022 Spyder Project Contributors
 # Licensed under the terms of the MIT License
 # (see LICENSE.txt for details)
 
@@ -38,13 +38,13 @@ def get_package_data(name, extlist):
 
 
 # Requirements
-REQUIREMENTS = ['line_profiler', 'spyder>=4']
+REQUIREMENTS = ['line_profiler', 'spyder>=5.2']
 EXTLIST = ['.jpg', '.png', '.json', '.mo', '.ini']
 LIBNAME = 'spyder_line_profiler'
 
 
 LONG_DESCRIPTION = """
-This is a plugin for the Spyder IDE that integrates the Python line profiler.
+This is a plugin for the Spyder 5 IDE that integrates the Python line profiler.
 It allows you to see the time spent in every line.
 
 Usage
@@ -69,8 +69,14 @@ setup(
     install_requires=REQUIREMENTS,
     url='https://github.com/spyder-ide/spyder-line-profiler',
     license='MIT',
+    python_requires='>= 3.7',
+    entry_points={
+        "spyder.plugins": [
+            "spyder_line_profiler = spyder_line_profiler.spyder.plugin:SpyderLineProfiler"
+        ],
+    },
     author="Spyder Project Contributors",
-    description='Plugin for the Spyder IDE that integrates the Python line profiler.',
+    description='Plugin for the Spyder 5 IDE that integrates the Python line profiler.',
     long_description=LONG_DESCRIPTION,
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -79,10 +85,10 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Topic :: Software Development',
         'Topic :: Text Editors :: Integrated Development Environments (IDE)'])
