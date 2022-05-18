@@ -20,8 +20,12 @@ from spyder.api.translations import get_translation
 from spyder.api.plugin_registration.decorators import on_plugin_available
 from spyder.api.plugin_registration.decorators import on_plugin_teardown
 from spyder.plugins.mainmenu.api import ApplicationMenus
+from spyder.utils.icon_manager import ima
+import qtawesome as qta
 
 # Local imports
+from spyder_line_profiler.spyder.config import (
+    CONF_SECTION, CONF_DEFAULTS, CONF_VERSION)
 from spyder_line_profiler.spyder.confpage import SpyderLineProfilerConfigPage
 from spyder_line_profiler.spyder.widgets import SpyderLineProfilerWidget
 from spyder_line_profiler.spyder.widgets import is_lineprofiler_installed
@@ -45,7 +49,9 @@ class SpyderLineProfiler(SpyderDockablePlugin):
     OPTIONAL = [Plugins.MainMenu]
     TABIFY = [Plugins.Help]
     WIDGET_CLASS = SpyderLineProfilerWidget
-    CONF_SECTION = NAME
+    CONF_SECTION = CONF_SECTION
+    CONF_DEFAULTS = CONF_DEFAULTS
+    CONF_VERSION = CONF_VERSION
     CONF_WIDGET_CLASS = SpyderLineProfilerConfigPage
     CONF_FILE = True
 
@@ -63,10 +69,7 @@ class SpyderLineProfiler(SpyderDockablePlugin):
         return _("Line profiler display for Spyder")
 
     def get_icon(self):
-        path = osp.join(
-            osp.dirname(osp.dirname(__file__)),
-            'data', 'images', 'spyder.line_profiler.png')
-        return QIcon(path)
+        return qta.icon('mdi.speedometer', color=ima.MAIN_FG_COLOR)
 
     def on_initialize(self):
         self.widget = self.get_widget()
