@@ -38,7 +38,7 @@ def get_package_data(name, extlist):
 
 
 # Requirements
-REQUIREMENTS = ['line_profiler', 'spyder>=5.2']
+REQUIREMENTS = ['line_profiler', 'qtawesome', 'spyder>=5.2']
 EXTLIST = ['.jpg', '.png', '.json', '.mo', '.ini']
 LIBNAME = 'spyder_line_profiler'
 
@@ -65,7 +65,7 @@ setup(
     version=get_version(),
     packages=find_packages(),
     package_data={LIBNAME: get_package_data(LIBNAME, EXTLIST)},
-    keywords=["Qt PyQt4 PyQt5 PySide spyder plugins spyplugins line_profiler profiler"],
+    keywords=["Qt PyQt5 PySide2 spyder plugins spyplugins line_profiler profiler"],
     install_requires=REQUIREMENTS,
     url='https://github.com/spyder-ide/spyder-line-profiler',
     license='MIT',
