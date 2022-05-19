@@ -65,7 +65,7 @@ setup(
     version=get_version(),
     packages=find_packages(),
     package_data={LIBNAME: get_package_data(LIBNAME, EXTLIST)},
-    keywords=["Qt PyQt5 PyQt6 PySide2 PySide6 spyder plugins spyplugins line_profiler profiler"],
+    keywords=["Qt PyQt5 PySide2 spyder plugins spyplugins line_profiler profiler"],
     install_requires=REQUIREMENTS,
     url='https://github.com/spyder-ide/spyder-line-profiler',
     license='MIT',
