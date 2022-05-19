@@ -3,8 +3,8 @@
 ## Project details
 
 ![license](https://img.shields.io/pypi/l/spyder-line-profiler.svg)
-[![conda version](https://img.shields.io/conda/v/spyder-ide/spyder-line-profiler.svg)](https://www.anaconda.com/download/)
-[![download count](https://img.shields.io/conda/d/spyder-ide/spyder-line-profiler.svg)](https://www.anaconda.com/download/)
+[![conda version](https://img.shields.io/conda/v/conda-forge/spyder-line-profiler.svg)](https://www.anaconda.com/download/)
+[![download count](https://img.shields.io/conda/d/conda-forge/spyder-line-profiler.svg)](https://www.anaconda.com/download/)
 [![pypi version](https://img.shields.io/pypi/v/spyder-line-profiler.svg)](https://pypi.python.org/pypi/spyder-line-profiler)
 [![Join the chat at https://gitter.im/spyder-ide/public](https://badges.gitter.im/spyder-ide/spyder.svg)](https://gitter.im/spyder-ide/public)
 [![OpenCollective Backers](https://opencollective.com/spyder/backers/badge.svg?color=blue)](#backers)
@@ -33,7 +33,7 @@ managers, as follows:
 Using conda (the recommended way!):
 
 ```
-conda install spyder-line-profiler -c spyder-ide
+conda install spyder-line-profiler -c conda-forge
 ```
 
 Using pip:
@@ -46,14 +46,14 @@ pip install spyder-line-profiler
 
 Add a `@profile` decorator to the functions that you wish to profile then
 Shift+F10 (line profiler default) to run the profiler on the current script,
-or go to `Run > Profile line by line`.
+or go to `Run > Run line profiler`.
 
 The results will be shown in a dockwidget, grouped by function. Lines with a
 stronger color take more time to run.
 
 ## Screenshot
 
-![Screenshot of spyder-line-profiler plugin showing profiler results](./img_src/screenshot_profler.png)
+![Screenshot of spyder-line-profiler plugin showing profiler results](./img_src/screenshot_profiler.png)
 
 ## Contributing
 
