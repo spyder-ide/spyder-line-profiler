@@ -1,5 +1,6 @@
 # Release
-Follow the steps to release a new version of spyder-line-profiler.
+
+Follow these steps to release a new version of spyder-line-profiler.
 
 In the commands below, replace `X.Y.Z` with the release version when needed.
 
@@ -16,6 +17,7 @@ You will need to have a local clone of the repo. The following steps supose a re
   ```bash
   git restore . && git switch master && git pull upstream master
   ```
+
 * Clean local repo
 
   ```bash

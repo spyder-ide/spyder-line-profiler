@@ -47,8 +47,8 @@ $ cd spyder-line-profiler
 
 ### Installing dependencies
 
-This installs Spyder, line_profiler and all other dependencies of the plugin into
-the conda environment using the conda-forge channel.
+This installs Spyder, line_profiler and all other plugin dependencies into
+the conda environment previously created, using the conda-forge channel.
 
 ```bash
 $ conda install -c conda-forge --file requirements/conda.txt
@@ -73,7 +73,7 @@ $ spyder
 
 ### Running Tests
 
-This command installs the test dependencies in the conda environment using the conda-forge channel.
+This command installs the test dependencies into your conda environment, using the conda-forge channel.
 
 ```bash
 $ conda install -c conda-forge --file requirements/tests.txt
