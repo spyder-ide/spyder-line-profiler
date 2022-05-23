@@ -57,7 +57,7 @@ the current script, or go to ``Run > Profile line by line``.
 The results will be shown in a dockwidget, grouped by function. Lines
 with a stronger color take more time to run.
 
-.. image: https://raw.githubusercontent.com/spyder-ide/spyder-line-profiler/master/img_src/screenshot_profler.png
+.. image: https://raw.githubusercontent.com/spyder-ide/spyder-line-profiler/master/img_src/screenshot_profiler.png
 """
 
 setup(
