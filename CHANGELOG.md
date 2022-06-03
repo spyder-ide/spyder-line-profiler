@@ -1,5 +1,29 @@
 # History of changes
 
+## Version 0.3.0 (2022/06/03)
+
+This version is compatible with Spyder 5.2 and 5.3.
+
+### Issues Closed
+
+* [Issue 54](https://github.com/spyder-ide/spyder-line-profiler/issues/54) - How to proceed with spyder 5 compatibility ([PR 56](https://github.com/spyder-ide/spyder-line-profiler/pull/56) by [@skjerns](https://github.com/skjerns))
+* [Issue 52](https://github.com/spyder-ide/spyder-line-profiler/issues/52) - Spyder 5 compatibility ([PR 56](https://github.com/spyder-ide/spyder-line-profiler/pull/56) by [@skjerns](https://github.com/skjerns))
+* [Issue 48](https://github.com/spyder-ide/spyder-line-profiler/issues/48) - Correctly register shortcuts
+* [Issue 27](https://github.com/spyder-ide/spyder-line-profiler/issues/27) - saving profiling results
+* [Issue 25](https://github.com/spyder-ide/spyder-line-profiler/issues/25) - Text box for file to be profiled accept directories
+
+In this release 5 issues were closed.
+
+### Pull Requests Merged
+
+* [PR 62](https://github.com/spyder-ide/spyder-line-profiler/pull/62) - PR: Update `README.md`, `CONTRIBUTING.md`, screenshot and add `RELEASE.md`, by [@dalthviz](https://github.com/dalthviz)
+* [PR 61](https://github.com/spyder-ide/spyder-line-profiler/pull/61) - PR: Add default config and change plugin icon, by [@dalthviz](https://github.com/dalthviz)
+* [PR 60](https://github.com/spyder-ide/spyder-line-profiler/pull/60) - PR: Remove outdated `conda.recipe` directory, by [@dalthviz](https://github.com/dalthviz)
+* [PR 56](https://github.com/spyder-ide/spyder-line-profiler/pull/56) - PR: Switch to new API for Spyder 5, by [@skjerns](https://github.com/skjerns) ([54](https://github.com/spyder-ide/spyder-line-profiler/issues/54), [53](https://github.com/spyder-ide/spyder-line-profiler/issues/53), [52](https://github.com/spyder-ide/spyder-line-profiler/issues/52))
+
+In this release 4 pull requests were closed.
+
+
 ## Version 0.2.1 (2020/04/28)
 
 This release fixes some compatibility issues with Spyder 4.1 and some other bugs.
