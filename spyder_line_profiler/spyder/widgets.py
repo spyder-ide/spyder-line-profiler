@@ -34,7 +34,7 @@ from spyder.plugins.variableexplorer.widgets.texteditor import TextEditor
 from spyder.api.widgets.main_widget import PluginMainWidget
 from spyder.widgets.comboboxes import PythonModulesComboBox
 from spyder.utils import programs
-from spyder.utils.misc import add_pathlist_to_PYTHONPATH, getcwd_or_home
+from spyder.utils.misc import getcwd_or_home
 from spyder.plugins.run.widgets import get_run_configuration
 from spyder.py3compat import to_text_string, pickle
 
@@ -64,6 +64,39 @@ def is_lineprofiler_installed():
     return (programs.is_module_installed('line_profiler')
             and programs.find_program('kernprof') is not None)
 
+
+def add_pathlist_to_PYTHONPATH(env, pathlist, drop_env=True):
+    """
+    Add a PYTHONPATH entry to a list of environment variables.
+    This allows to extend the environment of an external process
+    created with QProcess with our additions to PYTHONPATH.
+    Parameters
+    ----------
+    env: list
+        List of environment variables in the format of
+        QProcessEnvironment.
+    pathlist: list
+        List of paths to add to PYTHONPATH
+    drop_env: bool
+        Whether to drop PYTHONPATH previously found in the environment.
+    """
+    # PyQt API 1/2 compatibility-related tests:
+    assert isinstance(env, list)
+    # Next line commented out temporarily
+    # assert all([is_text_string(path) for path in env])
+
+    pypath = "PYTHONPATH"
+    pathstr = os.pathsep.join(pathlist)
+    if not drop_env:
+        for index, var in enumerate(env[:]):
+            if var.startswith(pypath + '='):
+                env[index] = var.replace(
+                    pypath + '=',
+                    pypath + '=' + pathstr + os.pathsep
+                )
+    else:
+        env.append(pypath + '=' + pathstr)
+        
 
 class TreeWidgetItem(QTreeWidgetItem):
     """
