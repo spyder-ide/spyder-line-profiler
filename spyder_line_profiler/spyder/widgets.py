@@ -65,39 +65,6 @@ def is_lineprofiler_installed():
             and programs.find_program('kernprof') is not None)
 
 
-def add_pathlist_to_PYTHONPATH(env, pathlist, drop_env=True):
-    """
-    Add a PYTHONPATH entry to a list of environment variables.
-    This allows to extend the environment of an external process
-    created with QProcess with our additions to PYTHONPATH.
-    Parameters
-    ----------
-    env: list
-        List of environment variables in the format of
-        QProcessEnvironment.
-    pathlist: list
-        List of paths to add to PYTHONPATH
-    drop_env: bool
-        Whether to drop PYTHONPATH previously found in the environment.
-    """
-    # PyQt API 1/2 compatibility-related tests:
-    assert isinstance(env, list)
-    # Next line commented out temporarily
-    # assert all([is_text_string(path) for path in env])
-
-    pypath = "PYTHONPATH"
-    pathstr = os.pathsep.join(pathlist)
-    if not drop_env:
-        for index, var in enumerate(env[:]):
-            if var.startswith(pypath + '='):
-                env[index] = var.replace(
-                    pypath + '=',
-                    pypath + '=' + pathstr + os.pathsep
-                )
-    else:
-        env.append(pypath + '=' + pathstr)
-        
-
 class TreeWidgetItem(QTreeWidgetItem):
     """
     An extension of QTreeWidgetItem that replaces the sorting behaviour
@@ -445,7 +412,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         if pythonpath is not None:
             env = [to_text_string(_pth)
                    for _pth in self.process.systemEnvironment()]
-            add_pathlist_to_PYTHONPATH(env, pythonpath)
+            env.append(f'PYTHONPATH={pythonpath}{os.pathsep}')
             processEnvironment = QProcessEnvironment()
             for envItem in env:
                 envName, separator, envValue = envItem.partition('=')
