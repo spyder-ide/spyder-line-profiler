@@ -26,7 +26,6 @@ from qtpy.QtWidgets import (QMessageBox, QVBoxLayout, QLabel,
 from qtpy.compat import getopenfilename, getsavefilename
 
 # Spyder imports
-
 from spyder.api.config.decorators import on_conf_change
 from spyder.api.translations import get_translation
 from spyder.config.base import get_conf_path
@@ -37,6 +36,9 @@ from spyder.utils import programs
 from spyder.utils.misc import getcwd_or_home
 from spyder.plugins.run.widgets import get_run_configuration
 from spyder.py3compat import to_text_string, pickle
+
+# Local imports
+from spyder_line_profiler.spyder.config import CONF_SECTION
 
 # Localization
 _ = get_translation("spyder")
@@ -136,8 +138,10 @@ class SpyderLineProfilerWidgetInformationToolbarItems:
 class SpyderLineProfilerWidget(PluginMainWidget):
 
     # PluginMainWidget class constants
+    CONF_SECTION = CONF_SECTION
     DATAPATH = get_conf_path('lineprofiler.results')
     VERSION = '0.0.1'
+
     redirect_stdio = Signal(bool)
     sig_finished = Signal()
     # Signals
@@ -412,7 +416,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         if pythonpath is not None:
             env = [to_text_string(_pth)
                    for _pth in self.process.systemEnvironment()]
-            env.append(f'PYTHONPATH={pythonpath}{os.pathsep}')
+            env.append(f'PYTHONPATH={pythonpath}')
             processEnvironment = QProcessEnvironment()
             for envItem in env:
                 envName, separator, envValue = envItem.partition('=')
