@@ -1,5 +1,10 @@
 # History of changes
 
+## Version 0.3.1 (2022/08/07)
+
+This version fixes a compatibility issue with Spyder 5.3.2 ([Issue 65](https://github.com/spyder-ide/spyder-line-profiler/issues/65), [PR 66](https://github.com/spyder-ide/spyder-line-profiler/pull/66)).
+
+
 ## Version 0.3.0 (2022/06/03)
 
 This version is compatible with Spyder 5.2 and 5.3.
