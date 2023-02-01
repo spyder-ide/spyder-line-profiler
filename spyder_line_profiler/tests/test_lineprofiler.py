@@ -56,7 +56,7 @@ def test_profile_and_display_results(qtbot, tmpdir):
 
     assert top.child(2).data(1, Qt.DisplayRole) == '1'  # hits
     assert top.child(3).data(1, Qt.DisplayRole) == '1' 
-    assert top.child(4).data(1, Qt.DisplayRole) == '101'
+    assert top.child(4).data(1, Qt.DisplayRole) in ['100', '101']  # result depends on Python version
     assert top.child(5).data(1, Qt.DisplayRole) == '100'
 
     assert float(top.child(2).data(2, Qt.DisplayRole)) >= 900  # time (ms)

@@ -11,9 +11,10 @@ Spyder Line Profiler Main Widget.
 import hashlib
 import inspect
 import linecache
-import re
 import os
 import os.path as osp
+import pickle
+import re
 import time
 from datetime import datetime
 
@@ -35,7 +36,6 @@ from spyder.widgets.comboboxes import PythonModulesComboBox
 from spyder.utils import programs
 from spyder.utils.misc import getcwd_or_home
 from spyder.plugins.run.widgets import get_run_configuration
-from spyder.py3compat import to_text_string, pickle
 
 # Local imports
 from spyder_line_profiler.spyder.config import CONF_SECTION
@@ -315,7 +315,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         self.kill_if_running()
         #index, _data = self.get_data(filename) # FIXME: storing data is not implemented yet
         if filename is not None:
-            filename = osp.abspath(to_text_string(filename))
+            filename = osp.abspath(str(filename))
             index = self.filecombo.findText(filename)
             if index == -1:
                 self.filecombo.addItem(filename)
@@ -325,7 +325,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             self.filecombo.selected()
 
         if self.filecombo.is_valid():
-            filename = to_text_string(self.filecombo.currentText())
+            filename = str(self.filecombo.currentText())
             runconf = get_run_configuration(filename)
             if runconf is not None:
                 if wdir is None:
@@ -384,7 +384,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         self.datelabel.setText(_(f'Profiling, please wait... elapsed: {elapsed}'))
 
     def start(self, wdir=None, args=None, pythonpath=None):
-        filename = to_text_string(self.filecombo.currentText())
+        filename = str(self.filecombo.currentText())
 
         if wdir in [None, False]:
             wdir = self._last_wdir
@@ -414,7 +414,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         self.process.finished.connect(self.finished)
 
         if pythonpath is not None:
-            env = [to_text_string(_pth)
+            env = [str(_pth)
                    for _pth in self.process.systemEnvironment()]
             env.append(f'PYTHONPATH={pythonpath}')
             processEnvironment = QProcessEnvironment()
@@ -470,7 +470,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
                 qba += self.process.readAllStandardError()
             else:
                 qba += self.process.readAllStandardOutput()
-        text = to_text_string(locale_codec.toUnicode(qba.data()))
+        text = str(locale_codec.toUnicode(qba.data()))
         if error:
             self.error_output += text
         else:
@@ -511,7 +511,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         self.save_action.setEnabled(output_exists)
 
         self.kill_if_running()
-        filename = to_text_string(self.filecombo.currentText())
+        filename = str(self.filecombo.currentText())
         if not filename:
             return
 
