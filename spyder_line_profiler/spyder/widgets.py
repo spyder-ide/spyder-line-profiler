@@ -35,7 +35,6 @@ from spyder.api.widgets.main_widget import PluginMainWidget
 from spyder.widgets.comboboxes import PythonModulesComboBox
 from spyder.utils import programs
 from spyder.utils.misc import getcwd_or_home
-from spyder.plugins.run.widgets import get_run_configuration
 
 # Local imports
 from spyder_line_profiler.spyder.config import CONF_SECTION
@@ -307,8 +306,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         else:
             pass
 
-    def analyze(self, filename=None, wdir=None, args=None, pythonpath=None,
-                use_colors=True):
+    def analyze(self, filename=None, wdir=None, args=None, use_colors=True):
         self.use_colors = use_colors
         if not is_lineprofiler_installed():
             return
@@ -326,25 +324,9 @@ class SpyderLineProfilerWidget(PluginMainWidget):
 
         if self.filecombo.is_valid():
             filename = str(self.filecombo.currentText())
-            runconf = get_run_configuration(filename)
-            if runconf is not None:
-                if wdir is None:
-                    if runconf.wdir_enabled:
-                        wdir = runconf.wdir
-                    elif runconf.cw_dir:
-                        wdir = os.getcwd()
-                    elif runconf.file_dir:
-                        wdir = osp.dirname(filename)
-                    elif runconf.fixed_dir:
-                        wdir = runconf.dir
-                if args is None:
-                    if runconf.args_enabled:
-                        args = runconf.args
             if wdir is None:
                 wdir = osp.dirname(filename)
-            if pythonpath is None:
-                pythonpath = self.spyder_pythonpath
-            self.start(wdir, args, pythonpath)
+            self.start(wdir, args)
 
     def select_file(self):
         self.redirect_stdio.emit(False)
