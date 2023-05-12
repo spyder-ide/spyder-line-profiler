@@ -35,11 +35,6 @@ from spyder_line_profiler.spyder.widgets import (
 _ = get_translation("spyder_line_profiler.spyder")
 
 
-class SpyderLineProfilerActions:
-    # Triggers
-    Run = 'run_profiler_action'
-
-
 class SpyderLineProfiler(SpyderDockablePlugin, RunExecutor):
     """
     Spyder Line Profiler plugin for Spyder 5.
