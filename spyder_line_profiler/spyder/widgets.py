@@ -11,6 +11,7 @@ Spyder Line Profiler Main Widget.
 import hashlib
 import inspect
 import linecache
+import logging
 import os
 import os.path as osp
 import pickle
@@ -35,14 +36,13 @@ from spyder.api.widgets.main_widget import PluginMainWidget
 from spyder.widgets.comboboxes import PythonModulesComboBox
 from spyder.utils import programs
 from spyder.utils.misc import getcwd_or_home
-from spyder.plugins.run.widgets import get_run_configuration
 
 # Local imports
 from spyder_line_profiler.spyder.config import CONF_SECTION
 
-# Localization
+# Localization and logging
 _ = get_translation("spyder")
-
+logger = logging.getLogger(__name__)
 
 COL_NO = 0
 COL_HITS = 1
@@ -167,11 +167,10 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         # Attributes
         self._last_wdir = None
         self._last_args = None
-        self._last_pythonpath = None
+        self.pythonpath = None
         self.error_output = None
         self.output = None
         self.use_colors = True
-        self.spyder_pythonpath = None
         self.process = None
         self.started_time = None
 
@@ -307,8 +306,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         else:
             pass
 
-    def analyze(self, filename=None, wdir=None, args=None, pythonpath=None,
-                use_colors=True):
+    def analyze(self, filename=None, wdir=None, args=None, use_colors=True):
         self.use_colors = use_colors
         if not is_lineprofiler_installed():
             return
@@ -326,25 +324,9 @@ class SpyderLineProfilerWidget(PluginMainWidget):
 
         if self.filecombo.is_valid():
             filename = str(self.filecombo.currentText())
-            runconf = get_run_configuration(filename)
-            if runconf is not None:
-                if wdir is None:
-                    if runconf.wdir_enabled:
-                        wdir = runconf.wdir
-                    elif runconf.cw_dir:
-                        wdir = os.getcwd()
-                    elif runconf.file_dir:
-                        wdir = osp.dirname(filename)
-                    elif runconf.fixed_dir:
-                        wdir = runconf.dir
-                if args is None:
-                    if runconf.args_enabled:
-                        args = runconf.args
             if wdir is None:
                 wdir = osp.dirname(filename)
-            if pythonpath is None:
-                pythonpath = self.spyder_pythonpath
-            self.start(wdir, args, pythonpath)
+            self.start(wdir, args)
 
     def select_file(self):
         self.redirect_stdio.emit(False)
@@ -383,7 +365,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         elapsed = str(datetime.now() - self.started_time).split(".")[0]
         self.datelabel.setText(_(f'Profiling, please wait... elapsed: {elapsed}'))
 
-    def start(self, wdir=None, args=None, pythonpath=None):
+    def start(self, wdir=None, args=None):
         filename = str(self.filecombo.currentText())
 
         if wdir in [None, False]:
@@ -395,12 +377,9 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             args = self._last_args
             if args is None:
                 args = []
-        if pythonpath is None:
-            pythonpath = self._last_pythonpath
 
         self._last_wdir = wdir
         self._last_args = args
-        self._last_pythonpath = pythonpath
 
         self.datelabel.setText(_('Profiling starting up, please wait...'))
         self.started_time = datetime.now()
@@ -413,15 +392,14 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             lambda: self.read_output(error=True))
         self.process.finished.connect(self.finished)
 
-        if pythonpath is not None:
-            env = [str(_pth)
-                   for _pth in self.process.systemEnvironment()]
-            env.append(f'PYTHONPATH={pythonpath}')
-            processEnvironment = QProcessEnvironment()
-            for envItem in env:
-                envName, separator, envValue = envItem.partition('=')
-                processEnvironment.insert(envName, envValue)
-            self.process.setProcessEnvironment(processEnvironment)
+        proc_env = QProcessEnvironment()
+        for k, v in os.environ.items():
+            proc_env.insert(k, v)
+        proc_env.remove('PYTHONPATH')
+        if self.pythonpath is not None:
+            logger.debug(f"Pass Pythonpath {self.pythonpath} to process")
+            proc_env.insert('PYTHONPATH', os.pathsep.join(self.pythonpath))
+        self.process.setProcessEnvironment(proc_env)
 
         self.clear_data()
         self.error_output = ''
@@ -495,6 +473,10 @@ class SpyderLineProfilerWidget(PluginMainWidget):
                 self.output = 'aborted'
                 self.process.waitForFinished()
 
+    @on_conf_change(section='pythonpath_manager', option='spyder_pythonpath')
+    def _update_pythonpath(self, value):
+        self.pythonpath = value
+
     def clear_data(self):
         self.datatree.clear()
         self.clear_action.setEnabled(False)
@@ -549,10 +531,6 @@ class SpyderLineProfilerWidget(PluginMainWidget):
             self.datelabel.setText(_(f"Saved results to {filename}"))
 
     def update_actions(self):
-        pass
-
-    @on_conf_change
-    def on_section_conf_change(self, section):
         pass
 
 

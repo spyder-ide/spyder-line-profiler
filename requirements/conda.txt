@@ -1,2 +1,2 @@
 line_profiler
-spyder >=5.2
+spyder>=6.0.0.dev0,<7
