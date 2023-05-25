@@ -8,10 +8,11 @@
 
 # Standard library imports
 import os
+import sys
 
 # Third party imports
 from qtpy.QtCore import Qt
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 # Local imports
 from spyder_line_profiler.spyder.widgets import SpyderLineProfilerWidget
@@ -27,7 +28,7 @@ def foo():
         xs = xs + ['x']
 foo()"""
 
-        
+
 def test_profile_and_display_results(qtbot, tmpdir):
     """Run profiler on simple script and check that results are okay."""
     os.chdir(tmpdir.strpath)
@@ -39,23 +40,29 @@ def test_profile_and_display_results(qtbot, tmpdir):
     MockQMessageBox = Mock()
 
     widget = SpyderLineProfilerWidget(None)
-    widget.setup()
-    qtbot.addWidget(widget)
-    with qtbot.waitSignal(widget.sig_finished, timeout=10000, raising=True):
-        widget.analyze(testfilename)
+    with patch.object(widget, 'get_conf',
+                      return_value=sys.executable) as mock_get_conf:
+        widget.setup()
+        qtbot.addWidget(widget)
+        with qtbot.waitSignal(widget.sig_finished, timeout=10000,
+                              raising=True):
+            widget.analyze(testfilename)
 
+    mock_get_conf.assert_called_once_with(
+        'executable', section='main_interpreter')
     MockQMessageBox.assert_not_called()
+
     dt = widget.datatree
     assert dt.topLevelItemCount() == 1  # number of functions profiled
-    
-    top = dt.topLevelItem(0)                               
+
+    top = dt.topLevelItem(0)
     assert top.data(0, Qt.DisplayRole).startswith('foo ')
     assert top.childCount() == 6
     for i in range(6):
         assert top.child(i).data(0, Qt.DisplayRole) == i + 2  # line no
 
     assert top.child(2).data(1, Qt.DisplayRole) == '1'  # hits
-    assert top.child(3).data(1, Qt.DisplayRole) == '1' 
+    assert top.child(3).data(1, Qt.DisplayRole) == '1'
     assert top.child(4).data(1, Qt.DisplayRole) in ['100', '101']  # result depends on Python version
     assert top.child(5).data(1, Qt.DisplayRole) == '100'
 

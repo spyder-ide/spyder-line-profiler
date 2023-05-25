@@ -404,25 +404,24 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         self.clear_data()
         self.error_output = ''
 
+        p_args = ['-m', 'kernprof', '-lvb', '-o', self.DATAPATH]
         if os.name == 'nt':
             # On Windows, one has to replace backslashes by slashes to avoid
             # confusion with escape characters (otherwise, for example, '\t'
             # will be interpreted as a tabulation):
-            filename = osp.normpath(filename).replace(os.sep, '/')
-            p_args = ['-lvb', '-o', '"' + self.DATAPATH + '"',
-                      '"' + filename + '"']
-            if args:
-                p_args.extend(programs.shell_split(args))
-            executable = '"' + programs.find_program('kernprof') + '"'
-            executable += ' ' + ' '.join(p_args)
-            executable = executable.replace(os.sep, '/')
-            self.process.start(executable)
+            p_args.append(osp.normpath(filename).replace(os.sep, '/'))
         else:
-            p_args = ['-lvb', '-o', self.DATAPATH, filename]
-            if args:
-                p_args.extend(programs.shell_split(args))
-            executable = 'kernprof'
-            self.process.start(executable, p_args)
+            p_args.append(filename)
+        if args:
+            p_args.extend(programs.shell_split(args))
+
+        executable = self.get_conf('executable', section='main_interpreter')
+        if executable.endswith('spyder.exe'):
+            # py2exe distribution
+            executable = 'python.exe'
+
+        logger.debug(f'Starting process with {executable=} and {p_args=}')
+        self.process.start(executable, p_args)
 
         running = self.process.waitForStarted()
         self.set_running_state(running)
