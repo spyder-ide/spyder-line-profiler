@@ -1,10 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-u"""
-:author: Joseph Martinot-Lagarde
-
-Created on Sat Jan 19 14:57:57 2013
-"""
+#
+# -----------------------------------------------------------------------------
+# Copyright (c) 2013- Spyder Project Contributors
+#
+# Released under the terms of the MIT License
+# (see LICENSE.txt in the project root directory for details)
+# -----------------------------------------------------------------------------
 
 from __future__ import (
     print_function, division, unicode_literals, absolute_import)
