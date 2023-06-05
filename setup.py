@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright © 2022 Spyder Project Contributors
-# Licensed under the terms of the MIT License
-# (see LICENSE.txt for details)
+# -----------------------------------------------------------------------------
+# Copyright (c) 2015- Spyder Project Contributors
+#
+# Released under the terms of the MIT License
+# (see LICENSE.txt in the project root directory for details)
+# -----------------------------------------------------------------------------
 
 """
 Setup script for spyder_line_profiler

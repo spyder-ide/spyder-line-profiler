@@ -1,20 +1,12 @@
-Maintainer
-==========
+# Authors
 
-The [Spyder Development Team](https://github.com/orgs/spyder-ide/teams/core-developers)
+## Original author
 
-Main Authors
-============
+* Joseph Martinot-Lagarde ([@Nodd](http://github.com/Nodd))
 
-Joseph Martinot-Lagarde ([@Nodd](http://github.com/Nodd))
 
-Code Contributors
-=================
+## Current maintainers
 
-Christer van der Meeren ([@cmeeren](http://github.com/cmeeren))
-
-Gonzalo Peña-Castellanos ([@goanpeca](http://github.com/goanpeca))
-
-Steven Silvester ([@blink1073](http://github.com/blink1073))
-
-Simon Kern [@skjerns](http://github.com/skjerns))
+* Jitse Niesen ([@jitseniesen](https://github.com/jitseniesen))
+* The [Spyder Development Team](https://github.com/spyder-ide)
+* The [spyder-line-profiler Contributors](https://github.com/spyder-ide/spyder-line-profiler/graphs/contributors)

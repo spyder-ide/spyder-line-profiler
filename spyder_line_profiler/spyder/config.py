@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright © 2022-, Spyder Line Profiler contributors
-# Licensed under the terms of the MIT License
-# (see spyder/__init__.py for details)
+# -----------------------------------------------------------------------------
+# Copyright (c) 2022- Spyder Project Contributors
+#
+# Released under the terms of the MIT License
+# (see LICENSE.txt in the project root directory for details)
+# -----------------------------------------------------------------------------
 
 """Spyder line-profiler default configuration."""
 

@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-# ----------------------------------------------------------------------------
-# Copyright © 2021, Spyder Line Profiler contributors
 #
-# Licensed under the terms of the MIT license
-# ----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Copyright (c) 2013- Spyder Project Contributors
+#
+# Released under the terms of the MIT License
+# (see LICENSE.txt in the project root directory for details)
+# -----------------------------------------------------------------------------
 
 """
 Spyder Line Profiler Plugin.
