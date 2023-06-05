@@ -30,14 +30,21 @@ from qtpy.QtWidgets import (QMessageBox, QVBoxLayout, QLabel,
 from qtpy.compat import getopenfilename, getsavefilename
 
 # Spyder imports
+import spyder
 from spyder.api.config.decorators import on_conf_change
 from spyder.api.translations import get_translation
+from spyder.api.widgets.main_widget import PluginMainWidget
 from spyder.config.base import get_conf_path
 from spyder.plugins.variableexplorer.widgets.texteditor import TextEditor
-from spyder.api.widgets.main_widget import PluginMainWidget
-from spyder.widgets.comboboxes import PythonModulesComboBox
 from spyder.utils import programs
 from spyder.utils.misc import getcwd_or_home
+from spyder.widgets.comboboxes import PythonModulesComboBox
+
+if spyder.version_info[0] >= 6:
+    USE_SPYDER6_RUN_PLUGIN = True
+else:
+    from spyder.plugins.run.widgets import get_run_configuration
+    USE_SPYDER6_RUN_PLUGIN = False
 
 # Local imports
 from spyder_line_profiler.spyder.config import CONF_SECTION
@@ -80,6 +87,7 @@ class TreeWidgetItem(QTreeWidgetItem):
     https://stackoverflow.com/questions/21030719/sort-a-pyside-qtgui-
     qtreewidget-by-an-alpha-numeric-column/
     """
+
     def __lt__(self, other):
         """
         Compare a widget text entry to another entry.
@@ -326,6 +334,21 @@ class SpyderLineProfilerWidget(PluginMainWidget):
 
         if self.filecombo.is_valid():
             filename = str(self.filecombo.currentText())
+            if not USE_SPYDER6_RUN_PLUGIN:
+                runconf = get_run_configuration(filename)
+                if runconf is not None:
+                    if wdir is None:
+                        if runconf.wdir_enabled:
+                            wdir = runconf.wdir
+                        elif runconf.cw_dir:
+                            wdir = os.getcwd()
+                        elif runconf.file_dir:
+                            wdir = osp.dirname(filename)
+                        elif runconf.fixed_dir:
+                            wdir = runconf.dir
+                    if args is None:
+                        if runconf.args_enabled:
+                            args = runconf.args
             if wdir is None:
                 wdir = osp.dirname(filename)
             self.start(wdir, args)
