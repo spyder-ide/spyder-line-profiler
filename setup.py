@@ -55,7 +55,7 @@ Usage
 
 Add a ``@profile`` decorator to the functions that you wish to profile
 then press Shift+F10 (line profiler default) to run the profiler on
-the current script, or go to ``Run > Profile line by line``.
+the current script, or go to ``Run > Run line profiler``.
 
 The results will be shown in a dockwidget, grouped by function. Lines
 with a stronger color take more time to run.
