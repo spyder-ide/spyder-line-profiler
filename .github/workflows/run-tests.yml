@@ -4,9 +4,11 @@ on:
   push:
     branches:
     - master
+    - spyder*
   pull_request:
     branches:
     - master
+    - spyder*
 
 jobs:
   main:
