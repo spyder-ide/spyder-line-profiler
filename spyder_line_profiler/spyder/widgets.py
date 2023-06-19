@@ -10,7 +10,6 @@
 Spyder Line Profiler Main Widget.
 """
 # Standard library imports
-import hashlib
 import inspect
 import linecache
 import logging
@@ -35,6 +34,7 @@ from spyder.api.translations import get_translation
 from spyder.api.widgets.main_widget import PluginMainWidget
 from spyder.config.base import get_conf_path
 from spyder.plugins.variableexplorer.widgets.texteditor import TextEditor
+from spyder.plugins.run.widgets import get_run_configuration
 from spyder.utils import programs
 from spyder.utils.misc import getcwd_or_home
 from spyder.utils.palette import SpyderPalette
@@ -337,6 +337,20 @@ class SpyderLineProfilerWidget(PluginMainWidget):
 
         if self.filecombo.is_valid():
             filename = str(self.filecombo.currentText())
+            runconf = get_run_configuration(filename)
+            if runconf is not None:
+                if wdir is None:
+                    if runconf.wdir_enabled:
+                        wdir = runconf.wdir
+                    elif runconf.cw_dir:
+                        wdir = os.getcwd()
+                    elif runconf.file_dir:
+                        wdir = osp.dirname(filename)
+                    elif runconf.fixed_dir:
+                        wdir = runconf.dir
+                if args is None:
+                    if runconf.args_enabled:
+                        args = runconf.args
             if wdir is None:
                 wdir = osp.dirname(filename)
             self.start(wdir, args)
