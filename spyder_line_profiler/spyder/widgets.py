@@ -32,12 +32,13 @@ from qtpy.compat import getopenfilename, getsavefilename
 # Spyder imports
 from spyder.api.config.decorators import on_conf_change
 from spyder.api.translations import get_translation
+from spyder.api.widgets.main_widget import PluginMainWidget
 from spyder.config.base import get_conf_path
 from spyder.plugins.variableexplorer.widgets.texteditor import TextEditor
-from spyder.api.widgets.main_widget import PluginMainWidget
-from spyder.widgets.comboboxes import PythonModulesComboBox
 from spyder.utils import programs
 from spyder.utils.misc import getcwd_or_home
+from spyder.utils.palette import SpyderPalette
+from spyder.widgets.comboboxes import PythonModulesComboBox
 
 # Local imports
 from spyder_line_profiler.spyder.config import CONF_SECTION
@@ -55,6 +56,16 @@ COL_LINE = 5
 COL_POS = 0  # Position is not displayed but set as Qt.UserRole
 
 CODE_NOT_RUN_COLOR = QBrush(QColor.fromRgb(128, 128, 128, 200))
+
+# Cycle to use when coloring lines from different functions
+COLOR_CYCLE = [
+    SpyderPalette.GROUP_1,
+    SpyderPalette.GROUP_4,
+    SpyderPalette.GROUP_10,
+    SpyderPalette.GROUP_12,
+    SpyderPalette.GROUP_2,
+    SpyderPalette.GROUP_8,
+    SpyderPalette.GROUP_6]
 
 WEBSITE_URL = 'http://pythonhosted.org/line_profiler/'
 
@@ -687,8 +698,9 @@ class LineProfilerDataTree(QTreeWidget):
             monospace_font = QFont("Courier New")
             monospace_font.setPointSize(10)
 
-        for func_info, func_data in self.stats.items():
+        for func_index, stat_item in enumerate(self.stats.items()):
             # Function name and position
+            func_info, func_data = stat_item
             filename, start_line_no, func_name = func_info
             func_stats, func_total_time = func_data
             func_item = TreeWidgetItem(self)
@@ -710,13 +722,10 @@ class LineProfilerDataTree(QTreeWidget):
                               func_total_time * 1e3)
 
             if self.parent().use_colors:
-                # Choose deteministic unique color for the function
-                md5 = hashlib.md5((filename + func_name).encode("utf8")).hexdigest()
-                hue = (int(md5[:2], 16) - 68) % 360  # avoid blue (unreadable)
-                func_color = QColor.fromHsv(hue, 200, 255)
+                color_index = func_index % len(COLOR_CYCLE)
             else:
-                # Red color only
-                func_color = QColor.fromRgb(255, 0, 0)
+                color_index = 0
+            func_color = COLOR_CYCLE[color_index]
 
             # Lines of code
             for line_info in func_stats:
