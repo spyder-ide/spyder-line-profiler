@@ -4,9 +4,11 @@ on:
   push:
     branches:
     - master
+    - spyder*
   pull_request:
     branches:
     - master
+    - spyder*
 
 jobs:
   main:
@@ -15,7 +17,7 @@ jobs:
       matrix:
         OS: ['ubuntu', 'macos', 'windows']
         PYTHON_VERSION: ['3.8', '3.9', '3.10']
-        SPYDER_SOURCE: ['git']
+        SPYDER_SOURCE: ['conda']
     name: ${{ matrix.OS }} py${{ matrix.PYTHON_VERSION }} spyder-from-${{ matrix.SPYDER_SOURCE }}
     runs-on: ${{ matrix.OS }}-latest
     env:
