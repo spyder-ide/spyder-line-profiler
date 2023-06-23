@@ -1,5 +1,24 @@
 # History of changes
 
+## Version 0.3.2 (2023/06/24)
+
+This version contains some bug fixes and is compatible with Spyder 5.4.
+
+### Bug fixes
+
+* Use Python interpreter/environment from Preferences ([Issue 67](https://github.com/spyder-ide/spyder-line-profiler/issues/67), [Issue 5](https://github.com/spyder-ide/spyder-line-profiler/issues/5), [PR 78](https://github.com/spyder-ide/spyder-line-profiler/pull/78))
+* Adapt colors to Spyder's palette ([Issue 50](https://github.com/spyder-ide/spyder-line-profiler/issues/50), [PR 82](https://github.com/spyder-ide/spyder-line-profiler/pull/82))
+* Update LICENSE.txt to match individual file copyright statements ([Issue 74](https://github.com/spyder-ide/spyder-line-profiler/issues/74), [PR 79](https://github.com/spyder-ide/spyder-line-profiler/pull/79))
+* Update description on PyPI ([Issue 73](https://github.com/spyder-ide/spyder-line-profiler/issues/73), [PR 83](https://github.com/spyder-ide/spyder-line-profiler/pull/83))
+
+### Maintenance
+
+* Updates for Spyder 5.4 ([Issue 80](https://github.com/spyder-ide/spyder-line-profiler/issues/80), [Issue 72](https://github.com/spyder-ide/spyder-line-profiler/issues/72), [PR 77](https://github.com/spyder-ide/spyder-line-profiler/pull/77), [PR 84](https://github.com/spyder-ide/spyder-line-profiler/pull/84))
+* Remove last bits of Python 2 support ([PR 68](https://github.com/spyder-ide/spyder-line-profiler/pull/68))
+* Update test for line_profiler 4.x ([Issue 75](https://github.com/spyder-ide/spyder-line-profiler/issues/75), [PR 68](https://github.com/spyder-ide/spyder-line-profiler/pull/68))
+* Update GitHub test action ([PR 76](https://github.com/spyder-ide/spyder-line-profiler/pull/76))
+
+
 ## Version 0.3.1 (2022/08/07)
 
 This version fixes a compatibility issue with Spyder 5.3.2 ([Issue 65](https://github.com/spyder-ide/spyder-line-profiler/issues/65), [PR 66](https://github.com/spyder-ide/spyder-line-profiler/pull/66)).
