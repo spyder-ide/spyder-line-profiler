@@ -62,11 +62,13 @@ class SpyderLineProfiler(SpyderDockablePlugin, RunExecutor):
     @staticmethod
     def get_name():
         return _("Line Profiler")
-
-    def get_description(self):
+    
+    @staticmethod
+    def get_description():
         return _("Line profiler display for Spyder")
-
-    def get_icon(self):
+    
+    @classmethod
+    def get_icon(cls):
         return qta.icon('mdi.speedometer', color=ima.MAIN_FG_COLOR)
 
     def on_initialize(self):
