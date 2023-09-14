@@ -1,0 +1,66 @@
+name: Spyder Versions
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  linux:
+    name: Linux Py37 Spyder Version
+    runs-on: ubuntu-latest
+    env:
+      CI: True
+      SPYDER_VERSION: ${{ matrix.SPYDER_VERSION }}
+      RUNNER_OS: 'ubuntu'
+    strategy:
+      fail-fast: false 
+      matrix:
+        SPYDER_VERSION: ['5.1.5', '5.2.0', '5.3.0']
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v2
+      - name: Install System Packages
+        run: | 
+          sudo apt-get update --fix-missing
+          sudo apt-get install -qq pyqt5-dev-tools libxcb-xinerama0 xterm --fix-missing
+      - name: Install Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+           activate-environment: test
+           auto-update-conda: true
+           channels: conda-forge
+           channel-priority: strict
+           auto-activate-base: false
+           python-version: 3.7
+      - name: Install package dependencies
+        shell: bash -l {0}
+        run: conda install --file requirements/conda.txt -y -q
+      - name: Install test dependencies
+        shell: bash -l {0}
+        run: |
+          conda install nomkl -y -q
+          pip install -r requirements/tests.txt
+      - name: Install Spyder version via PIP
+        shell: bash -l {0}
+        run: |
+          pip install spyder==${{ matrix.SPYDER_VERSION }}
+      - name: Install Package
+        shell: bash -l {0}
+        run: pip install --no-deps -e .
+      - name: Show environment information
+        shell: bash -l {0}
+        run: |
+          conda info
+          conda list
+          python -c "import spyder;print(spyder.__version__)"
+      - name: Run tests
+        shell: bash -l {0}
+        run: xvfb-run --auto-servernum pytest --cov=spyder_line_profiler -x -vv
+        timeout-minutes: 10
+      - name: Upload coverage to Codecov
+        shell: bash -l {0}
+        run: codecov -t c7131d69-0c30-4f66-9262-4e8016541665
