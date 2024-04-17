@@ -417,7 +417,11 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         self.clear_data()
         self.error_output = ''
 
-        p_args = ['-m', 'kernprof', '-lvb', '-o', self.DATAPATH]
+        # Use UTF-8 mode so that profiler writes its output to DATAPATH using
+        # UTF-8 encoding, instead of the ANSI code page on Windows.
+        # See issue spyder-ide/spyder-line-profiler#90
+        p_args = ['-X', 'utf8', '-m', 'kernprof', '-lvb', '-o', self.DATAPATH]
+
         if os.name == 'nt':
             # On Windows, one has to replace backslashes by slashes to avoid
             # confusion with escape characters (otherwise, for example, '\t'

@@ -15,7 +15,7 @@ import sys
 
 # Third party imports
 from qtpy.QtCore import Qt
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 # Local imports
 from spyder_line_profiler.spyder.widgets import SpyderLineProfilerWidget
@@ -26,7 +26,7 @@ TEST_SCRIPT = \
 @profile
 def foo():
     time.sleep(1)
-    xs = []
+    xs = []  # Test non-ascii character: Σ
     for k in range(100):
         xs = xs + ['x']
 foo()"""
@@ -37,14 +37,15 @@ def test_profile_and_display_results(qtbot, tmpdir):
     os.chdir(tmpdir.strpath)
     testfilename = tmpdir.join('test_foo.py').strpath
 
-    with open(testfilename, 'w') as f:
+    with open(testfilename, 'w', encoding='utf-8') as f:
         f.write(TEST_SCRIPT)
-
-    MockQMessageBox = Mock()
 
     widget = SpyderLineProfilerWidget(None)
     with patch.object(widget, 'get_conf',
-                      return_value=sys.executable) as mock_get_conf:
+                      return_value=sys.executable) as mock_get_conf, \
+         patch('spyder_line_profiler.spyder.widgets.TextEditor') \
+         as MockTextEditor:
+
         widget.setup()
         qtbot.addWidget(widget)
         with qtbot.waitSignal(widget.sig_finished, timeout=10000,
@@ -53,7 +54,7 @@ def test_profile_and_display_results(qtbot, tmpdir):
 
     mock_get_conf.assert_called_once_with(
         'executable', section='main_interpreter')
-    MockQMessageBox.assert_not_called()
+    MockTextEditor.assert_not_called()
 
     dt = widget.datatree
     assert dt.topLevelItemCount() == 1  # number of functions profiled
