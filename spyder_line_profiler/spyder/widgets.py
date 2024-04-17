@@ -10,7 +10,6 @@
 Spyder Line Profiler Main Widget.
 """
 # Standard library imports
-import hashlib
 import inspect
 import linecache
 import logging
