@@ -41,13 +41,13 @@ def get_package_data(name, extlist):
 
 
 # Requirements
-REQUIREMENTS = ['line_profiler', 'qtawesome', 'spyder>=6.0.0.dev0,<7']
+REQUIREMENTS = ['line_profiler', 'qtawesome', 'spyder>=6,<7']
 EXTLIST = ['.jpg', '.png', '.json', '.mo', '.ini']
 LIBNAME = 'spyder_line_profiler'
 
 
 LONG_DESCRIPTION = """
-This is a plugin for the Spyder 5 IDE that integrates the Python line profiler.
+This is a plugin for the Spyder IDE that integrates the Python line profiler.
 It allows you to see the time spent in every line.
 
 Usage
@@ -79,7 +79,7 @@ setup(
         ],
     },
     author="Spyder Project Contributors",
-    description='Plugin for the Spyder 5 IDE that integrates the Python line profiler.',
+    description='Plugin for the Spyder IDE that integrates the Python line profiler.',
     long_description=LONG_DESCRIPTION,
     classifiers=[
         'Development Status :: 4 - Beta',
