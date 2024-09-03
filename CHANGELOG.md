@@ -11,7 +11,7 @@ This release updates the plugin to be used with Spyder 6 and fixes a bug.
 ### Maintenance
 
 * Make plugin compatible with Spyder 6 ([Issue 86](https://github.com/spyder-ide/spyder-line-profiler/issues/86), [Issue 91](https://github.com/spyder-ide/spyder-line-profiler/issues/91), [PR 87](https://github.com/spyder-ide/spyder-line-profiler/pull/87), [PR 93](https://github.com/spyder-ide/spyder-line-profiler/pull/93))
-** Thanks to [Reinert Huseby Karlsen](https://github.com/rhkarls) and [Simon Kern](https://github.com/skjerns) for help with this!
+  * Thanks to [Reinert Huseby Karlsen](https://github.com/rhkarls) and [Simon Kern](https://github.com/skjerns) for help with this!
 
 
 ## Version 0.3.2 (2023/06/24)
