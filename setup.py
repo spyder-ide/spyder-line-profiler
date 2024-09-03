@@ -41,13 +41,13 @@ def get_package_data(name, extlist):
 
 
 # Requirements
-REQUIREMENTS = ['line_profiler', 'qtawesome', 'spyder>=6.0.0.dev0,<7']
+REQUIREMENTS = ['line_profiler', 'qtawesome', 'spyder>=6,<7']
 EXTLIST = ['.jpg', '.png', '.json', '.mo', '.ini']
 LIBNAME = 'spyder_line_profiler'
 
 
 LONG_DESCRIPTION = """
-This is a plugin for the Spyder 5 IDE that integrates the Python line profiler.
+This is a plugin for the Spyder IDE that integrates the Python line profiler.
 It allows you to see the time spent in every line.
 
 Usage
@@ -72,14 +72,14 @@ setup(
     install_requires=REQUIREMENTS,
     url='https://github.com/spyder-ide/spyder-line-profiler',
     license='MIT',
-    python_requires='>= 3.7',
+    python_requires='>= 3.8',
     entry_points={
         "spyder.plugins": [
             "spyder_line_profiler = spyder_line_profiler.spyder.plugin:SpyderLineProfiler"
         ],
     },
     author="Spyder Project Contributors",
-    description='Plugin for the Spyder 5 IDE that integrates the Python line profiler.',
+    description='Plugin for the Spyder IDE that integrates the Python line profiler.',
     long_description=LONG_DESCRIPTION,
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -89,9 +89,10 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Topic :: Software Development',
         'Topic :: Text Editors :: Integrated Development Environments (IDE)'])
