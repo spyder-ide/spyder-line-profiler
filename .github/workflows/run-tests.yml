@@ -91,7 +91,7 @@ jobs:
           shell: bash
           command: |
             . ~/.profile
-            xvfb-run --auto-servernum pytest spyder-line-profiler/spyder_line_profiler --cov=spyder_line_profiler --cov-report=xml -vv
+            xvfb-run --auto-servernum pytest spyder-line-profiler/spyder_line_profiler -vv
       - name: Run tests (MacOS)
         if: matrix.OS == 'macos'
         uses: nick-fields/retry@v3
@@ -109,9 +109,3 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: pytest spyder-line-profiler/spyder_line_profiler -x -vv
-      - name: Upload coverage to Codecov
-        if: matrix.OS == 'ubuntu' && matrix.PYTHON_VERSION == '3.10'
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-
