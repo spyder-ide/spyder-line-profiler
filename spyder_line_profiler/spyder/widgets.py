@@ -383,7 +383,7 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         if wdir in [None, False]:
             wdir = self._last_wdir
             if wdir in [None, False]:
-                wdir = osp.basename(filename)
+                wdir = osp.dirname(filename)
 
         if args is None:
             args = self._last_args
