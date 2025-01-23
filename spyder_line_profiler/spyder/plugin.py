@@ -107,6 +107,11 @@ class SpyderLineProfiler(SpyderDockablePlugin, RunExecutor):
                     "section": RunMenuSections.RunInExecutors
                 }
             )
+    @on_plugin_available(plugin=Plugins.Editor)
+    def on_editor_available(self):
+        widget = self.get_widget()
+        editor = self.get_plugin(Plugins.Editor)
+        widget.sig_edit_goto_requested.connect(editor.load)
 
     @on_plugin_available(plugin=Plugins.Preferences)
     def on_preferences_available(self):
@@ -125,6 +130,12 @@ class SpyderLineProfiler(SpyderDockablePlugin, RunExecutor):
     def on_preferences_teardown(self):
         preferences = self.get_plugin(Plugins.Preferences)
         preferences.deregister_plugin_preferences(self)
+
+    @on_plugin_teardown(plugin=Plugins.Editor)
+    def on_editor_teardown(self):
+        widget = self.get_widget()
+        editor = self.get_plugin(Plugins.Editor)
+        widget.sig_edit_goto_requested.disconnect(editor.load)
 
     def check_compatibility(self):
         valid = True
