@@ -76,7 +76,7 @@ def is_lineprofiler_installed():
     Check if the program and the library for line_profiler is installed.
     """
     return (programs.is_module_installed('line_profiler')
-            and programs.find_program('kernprof') is not None)
+            and programs.is_module_installed('kernprof') is not None)
 
 
 class TreeWidgetItem(QTreeWidgetItem):
