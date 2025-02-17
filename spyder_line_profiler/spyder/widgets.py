@@ -22,7 +22,7 @@ from datetime import datetime
 
 # Third party imports
 from qtpy.QtGui import QBrush, QColor, QFont
-from qtpy.QtCore import (QByteArray, QProcess, Qt, QTextCodec,
+from qtpy.QtCore import (QByteArray, QProcess, Qt,
                          QProcessEnvironment, Signal, QTimer)
 from qtpy.QtWidgets import (QMessageBox, QVBoxLayout, QLabel,
                             QTreeWidget, QTreeWidgetItem, QApplication)
@@ -67,8 +67,6 @@ COLOR_CYCLE = [
     SpyderPalette.GROUP_6]
 
 WEBSITE_URL = 'http://pythonhosted.org/line_profiler/'
-
-locale_codec = QTextCodec.codecForLocale()
 
 
 def is_lineprofiler_installed():
@@ -419,6 +417,9 @@ class SpyderLineProfilerWidget(PluginMainWidget):
         # Use UTF-8 mode so that profiler writes its output to DATAPATH using
         # UTF-8 encoding, instead of the ANSI code page on Windows.
         # See issue spyder-ide/spyder-line-profiler#90
+        #
+        # UTF-8 mode also changes the encoding of stdin/stdout/stdout which must
+        # be taken into account when using stdandard I/O.
         p_args = ['-X', 'utf8', '-m', 'kernprof', '-lvb', '-o', self.DATAPATH]
 
         if os.name == 'nt':
@@ -463,7 +464,8 @@ class SpyderLineProfilerWidget(PluginMainWidget):
                 qba += self.process.readAllStandardError()
             else:
                 qba += self.process.readAllStandardOutput()
-        text = str(locale_codec.toUnicode(qba.data()))
+        # encoding: Python process is started with UTF-8 mode
+        text = str(qba.data(), encoding="utf-8")
         if error:
             self.error_output += text
         else:
