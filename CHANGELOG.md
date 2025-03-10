@@ -1,5 +1,22 @@
 # History of changes
 
+## Version 0.4.1 (2025/03/10)
+
+This release contains some bug fixes. Thanks to [@rear1019](https://github.com/rear1019) who contributed all the changes except for the last PR.
+
+### Bug fixes
+
+* Fix go-to-line when clicking entries ([PR 94](https://github.com/spyder-ide/spyder-line-profiler/pull/94))
+* Fix setting of working directory ([Issue 85](https://github.com/spyder-ide/spyder-line-profiler/issues/85), [PR 96](https://github.com/spyder-ide/spyder-line-profiler/pull/96))
+* Consistently use UTF-8 encoding even if the system default is different ([PR 99](https://github.com/spyder-ide/spyder-line-profiler/pull/99))
+* Fix runtime dependency check ([PR 95](https://github.com/spyder-ide/spyder-line-profiler/pull/95))
+
+### Maintenance
+
+* Remove QTextCodec for better compatibility with Qt 6 ([Issue 98](https://github.com/spyder-ide/spyder-line-profiler/issues/98), [PR 99](https://github.com/spyder-ide/spyder-line-profiler/pull/99))
+* Fix GitHub automatic testing ([PR 97](https://github.com/spyder-ide/spyder-line-profiler/pull/97))
+
+
 ## Version 0.4.0 (2024/09/03)
 
 This release updates the plugin to be used with Spyder 6 and fixes a bug.
